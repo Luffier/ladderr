@@ -22,7 +22,7 @@ And if you have an NFS\SMB\Samba server:
 - **Remote root server path**: `/downloads`
 - **Local root path**: `\\server_name_or_ip\very\long\path\downloads`
 
-Then Ladders creates a protocol link pointing to your local files (by using the information already 
+Then, Ladderr creates a protocol link pointing to your local files (by using the information already 
 available in the Web UI), when the `Open destination folder` link is clicked, the
 protocol is invoked, and a console window (which opens and closes rapidly) executes
 a Python script that parses the file/folder path and finally opens it.
@@ -38,22 +38,22 @@ To learn more about protocol handlers, you can read [MS-URI-Handlers](https://gi
 ## How to use
 
 - Install [Python 3](https://www.python.org/downloads/) (make sure to check `Add python.exe to PATH` during installation. Afterwards, you'll have to restart your session or PC).
-- Install custom protocol handler by double clicking `ladderr.reg` (can be easily removed with `uninstall-ladderr.reg`).
+- Install the custom protocol handler by double clicking `ladderr.reg` (can be easily removed with `uninstall-ladderr.reg`).
 - Install the userscript from [openuserjs](https://openuserjs.org/scripts/luffier/Ladderr), [greasyfork](https://greasyfork.org/scripts/479135-ladderr) or directly from this repo.
 - Configure the root path mapping in the script settings menu.
 
 ## What's next
 
 - Add `Open` and `Open containing folder` for the `Content` tab.
-- Fix problems with torrents containing whitespaces
-- Drop Python dependency (I don't know if it's, in theory, VB could be used; any help would be appreciated)
-- Linux support (low priority; any help would be appreciated)
+- Fix problems with torrents containing whitespaces or non-ASCII characters
+- Drop Python dependency (I don't know if it's possible, in theory, VB could be used; any help would be appreciated)
+- Linux support (low priority as I don't use it daily; any help would be appreciated)
 
 ## Limitations
 
 - If your Web UI uses HTTP, it will open a new tab and ask for permission. For a more seamless experience, use HTTPS (if your server is local, look up self-signed certs with mkcert)
 - Only works in Windows.
-- File paths containing whitespaces may not work
+- File paths containing whitespaces or non-ASCII characters may not work
 
 ## Security concerns
 
