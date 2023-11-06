@@ -39,7 +39,7 @@ To learn more about protocol handlers, you can read [MS-URI-Handlers](https://gi
 
 - Install [Python 3](https://www.python.org/downloads/) (make sure to check `Add python.exe to PATH` during installation. Afterwards, you'll have to restart your session or PC).
 - Install custom protocol handler by double clicking `ladderr.reg` (can be easily removed with `unistall-ladderr.reg`).
-- Install the userscript from [openuserjs](https://openuserjs.org/), [greasyfork](https://greasyfork.org/) or directly from this repo.
+- Install the userscript from [openuserjs](https://openuserjs.org/scripts/luffier/ladder), [greasyfork](https://greasyfork.org/scripts/479135-ladderr) or directly from this repo.
 - Configure the root path mapping in the script settings menu.
 
 ## What's next
@@ -61,4 +61,5 @@ Since everyone's Web UI will have a different URL, the script is active by defau
 but it will only do its thing when it detects that the page is indeed a qBittorrent Web UI. You can always change this in the script metadata block: 
 
 Remove the following lines: `// @match https://*/` and `// @match http://*/ `.
+
 And add your URL, for example: `// @match https://192.168.1.100:8080/` or `// @match http://myserver.local/`.
