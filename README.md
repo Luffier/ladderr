@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://i.imgur.com/56zhYu9.png" width="350px">
+</p>
+
 # ladderr
 Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 
@@ -6,11 +10,35 @@ Access your remote files directly from qBittorrent Web UI, just like in the desk
 Basically, by leveraging protocol handlers, we can open a File Explorer window directly
 to your network drive, exactly mimicking the desktop behavior.
 
-First, you need to map your qBittorrent remote root path to your local network root path. 
+After mapping your remote and local path in the script settings, Ladderr can 
+create a protocol link pointing to your local files (by using the information already 
+available in the Web UI). When the `Open destination folder` link is clicked, the
+protocol is invoked, and a console window (which opens and closes rapidly) executes
+a Python script that parses the path and opens it.
+
+The files in this repo:
+- ladderr.js: the userscript itself
+- ladderr.reg: the custom protocol handler `ladderr:`
+- uninstall-ladderr.reg: removes the `ladderr:` protocol handler
+- urlparser.py: Python script describing the one-line code that is executed when the protocol is invoked
+
+To learn more about protocol handlers, you can read [MS-URI-Handlers](https://github.com/amartinsec/MS-URI-Handlers).
+
+## How to use
+
+- Install [Python 3](https://www.python.org/downloads/) (make sure to check `Add python.exe to PATH` during installation. Afterwards, you'll have to restart your session or PC).
+- Install the custom protocol handler by double clicking `ladderr.reg` (can be easily removed with `uninstall-ladderr.reg`).
+- Install the userscript from [openuserjs](https://openuserjs.org/scripts/luffier/Ladderr), [greasyfork](https://greasyfork.org/scripts/479135-ladderr) or directly from this repo.
+- Configure the root path mapping in the script settings menu (see section below).
+
+### Path mapping
+
+We need to map your qBittorrent remote root path to your local network root path. 
 This can be done by going to the `Tools` navbar menu and clicking `Ladderr Options`.
 
-The remote path should be the root folder that you configured in `Default Save Path` (`Options\Downloads\Saving Management`)
-and your local root path the equivalent in your local machine.
+The remote path should be the root folder that you configured 
+in `Default Save Path` (`Options\Downloads\Saving Management`) and your local root
+path the equivalent in your local machine.
 
 For example, if you have a network location:
 - *Default Save Path*: `/data/downloads`
@@ -21,26 +49,6 @@ And if you have an NFS\SMB\Samba server:
 - *Default Save Path*: `/downloads`
 - **Remote root server path**: `/downloads`
 - **Local root path**: `\\server_name_or_ip\very\long\path\downloads`
-
-Then, Ladderr creates a protocol link pointing to your local files (by using the information already 
-available in the Web UI), when the `Open destination folder` link is clicked, the
-protocol is invoked, and a console window (which opens and closes rapidly) executes
-a Python script that parses the file/folder path and finally opens it.
-
-The files in this repo:
-- ladderr.js: the userscript itself
-- ladderr.reg: the custom protocol handler `ladderr:`
-- urlparser.py: Python script describing the one-line code that is executed when the protocol is invoked
-- uninstall-ladderr.reg: removes the `ladderr:` protocol handler
-
-To learn more about protocol handlers, you can read [MS-URI-Handlers](https://github.com/amartinsec/MS-URI-Handlers).
-
-## How to use
-
-- Install [Python 3](https://www.python.org/downloads/) (make sure to check `Add python.exe to PATH` during installation. Afterwards, you'll have to restart your session or PC).
-- Install the custom protocol handler by double clicking `ladderr.reg` (can be easily removed with `uninstall-ladderr.reg`).
-- Install the userscript from [openuserjs](https://openuserjs.org/scripts/luffier/Ladderr), [greasyfork](https://greasyfork.org/scripts/479135-ladderr) or directly from this repo.
-- Configure the root path mapping in the script settings menu.
 
 ## What's next
 
