@@ -38,8 +38,8 @@ To learn more about protocol handlers, you can read [MS-URI-Handlers](https://gi
 ## How to use
 
 - Install [Python 3](https://www.python.org/downloads/) (make sure to check `Add python.exe to PATH` during installation. Afterwards, you'll have to restart your session or PC).
-- Install custom protocol handler by double clicking `ladderr.reg` (can be easily removed with `unistall-ladderr.reg`).
-- Install the userscript from [openuserjs](https://openuserjs.org/scripts/luffier/ladder), [greasyfork](https://greasyfork.org/scripts/479135-ladderr) or directly from this repo.
+- Install custom protocol handler by double clicking `ladderr.reg` (can be easily removed with `uninstall-ladderr.reg`).
+- Install the userscript from [openuserjs](https://openuserjs.org/scripts/luffier/Ladderr), [greasyfork](https://greasyfork.org/scripts/479135-ladderr) or directly from this repo.
 - Configure the root path mapping in the script settings menu.
 
 ## What's next
