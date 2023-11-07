@@ -1,24 +1,40 @@
-import os
 import sys
 import subprocess
 import urllib.parse
 
+""" SELECT """
+
 # Get path from command arguments
-path = urllib.parse.unquote(sys.argv[1])
-# If it's a file, add the '/select' option to open the parent folder with the file selected
-path = path if os.path.isdir(path) else '/select,' + path
+path = '/select,' + urllib.parse.unquote(sys.argv[1])
 # Call explorer.exe and open the folder
 subprocess.call(['explorer', path])
 
 # Minified code 
 '''
-import os,sys,subprocess as B,urllib.parse
-A=urllib.parse.unquote(sys.argv[1])
-A=A if os.path.isdir(A)else'/select,'+A
-B.call(['explorer',A])
+import sys,subprocess as A,urllib.parse
+A.call(['explorer','/select,'+urllib.parse.unquote(sys.argv[1])])
 '''
 
 # One-line code in command form
 '''
-python -c "import os,sys,subprocess as B,urllib.parse;A=urllib.parse.unquote(sys.argv[1]);A=A if os.path.isdir(A)else'/select,'+A;B.call(['explorer',A])"
+python -c "import sys,subprocess as A,urllib.parse;A.call(['explorer','/select,'+urllib.parse.unquote(sys.argv[1])])"
+'''
+
+
+""" OPEN """
+
+# Get path from command arguments
+path = urllib.parse.unquote(sys.argv[1])
+# Call explorer.exe and open the folder
+subprocess.call(['explorer', path])
+
+# Minified code 
+'''
+import sys,subprocess as A,urllib.parse
+A.call(['explorer',urllib.parse.unquote(sys.argv[1])])
+'''
+
+# One-line code in command form
+'''
+python -c "import sys,subprocess as A,urllib.parse:A.call(['explorer',urllib.parse.unquote(sys.argv[1])])"
 '''

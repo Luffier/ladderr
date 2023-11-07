@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ladderr
-// @version      0.1
+// @version      0.2
 // @description  Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 // @author       luffier
 // @namespace    ladderr
@@ -53,7 +53,7 @@
             margin: 8px 8px 8px 12px;
             display: flex;
         }
-        #ladderrSettingsMenu .variable label {
+        #ladderrSettingsMenu .variable span {
             width: 90px;
             font-weight: bold;
         }
@@ -148,22 +148,43 @@
 
     }
 
-    // Create context menu item for 'Open destination folder'
-    function createContextMenuItem() {
+    // Create menu items for the different context menus
+    function createContextMenuItems() {
 
+        // Torrents queue list ("Open destination folder" context menu item)
         let queueMenuItem = $('#queueingMenuItems');
-        let openMenutItem = createElement(`
+        let openDestinationMenutItem = createElement(`
         <li>
-            <a id="ladderrLink"><img src="images/directory.svg" alt="Open destination folder">
+            <a><img src="images/directory.svg" alt="Open destination folder">
                 <span>Open destination folder</span>
             </a>
         </li>
         `);
-        addEventListener(openMenutItem, 'click', launchHandler);
-        queueMenuItem.after(openMenutItem);
+        addEventListener(openDestinationMenutItem, 'click', openDestinationFolder);
+        queueMenuItem.after(openDestinationMenutItem);
+
+        // Torrent files ("Open" context menu item)
+        let torrentFilesMenu = $('#torrentFilesMenu');
+        let openMenuItem = createElement(`
+        <li>
+            <a><img src="images/folder-documents.svg" alt="Open"> Open</a>
+        </li>
+        `);
+        addEventListener(openMenuItem, 'click', openFile);
+        torrentFilesMenu.append(openMenuItem);
+
+        // Torrent files ("Open containing folder" context menu item)
+        let openContainingMenuItem = createElement(`
+        <li>
+            <a><img src="images/directory.svg" alt="Open containing folder"> Open containing folder</a>
+        </li>
+        `);
+        addEventListener(openContainingMenuItem, 'click', openContainingFolder);
+        torrentFilesMenu.append(openContainingMenuItem);
 
     }
 
+    // Save Ladderr settings to localStorage
     async function saveSettings() {
         let basePathRemote = $('#ladderrSettingsMenu_pathRemote').value;
         let basePathLocal = $('#ladderrSettingsMenu_pathLocal').value;
@@ -173,6 +194,7 @@
         Ladderr.basePathLocal = basePathLocal;
     }
 
+    // Load Ladderr settings from localStorage
     async function loadSettings() {
         let basePathRemote = await GM.getValue(Ladderr.url + 'pathRemote', Ladderr.basePathRemote);
         let basePathLocal = await GM.getValue(Ladderr.url + 'pathLocal', Ladderr.basePathLocal);
@@ -182,6 +204,7 @@
         Ladderr.basePathLocal = basePathLocal;
     }
 
+    // Create Ladderr settings menu
     function createSettingsMenu() {
 
         // Settings menu
@@ -189,10 +212,10 @@
             <div id="ladderrSettingsMenu">
                 <div class="header">Ladderr Settings Menu</div>
                 <div class="variable">
-                    <label>· Remote path:</label><input type="text" id="ladderrSettingsMenu_pathRemote" size="10" />
+                    <span>· Remote path:</span><input type="text" id="ladderrSettingsMenu_pathRemote" size="10" />
                 </div>
                 <div class="variable">
-                    <label>· Local path:</label><input type="text" id="ladderrSettingsMenu_pathLocal" size="10" />
+                    <span>· Local path:</span><input type="text" id="ladderrSettingsMenu_pathLocal" size="10" />
                 </div>
                 <div class="footer">
                     <button id="ladderrSettingsMenu_saveBtn" title="Save settings" class="saveclose_buttons">Save</button>
@@ -227,8 +250,8 @@
 
     }
 
-    function openDestinationFolder() {
-
+    // Get the remote path of the selected torrent 
+    function getTorrentRemotePath() {
         if (Ladderr.basePathRemote == null || Ladderr.basePathLocal == null) {
             console.log('[Ladderr] Please configure your local and remote paths');
             return;
@@ -250,25 +273,80 @@
         }
         let pathHeader = torrentTableHeader.querySelector('th[title="Save path"]');
         let pathHeaderIndex = torrentTableHeaders.indexOf(pathHeader);
-        let pathRemote = torrent.querySelector(`td:nth-child(${pathHeaderIndex + 1})`).textContent;
+        return torrent.querySelector(`td:nth-child(${pathHeaderIndex + 1})`).textContent;
+    }
 
+    function openUriLink(fromFileList=false, action=null) {
+        let pathRemote = getTorrentRemotePath();
+    
         // Get torrent filename
-        let filename = $('#filesTablefileName0');
-        let filenamePath = filename.textContent;
-
-        // Make link
+        let pathParts  = [];
+        let previousLevel = null;
+        let fileIndex = null;
+        let fileRow = null;
+        let isRowFolder = null;
+        while (fileIndex != 0) {
+            if (fileRow == null) {
+                fileRow = $('#torrentFilesTableDiv table tbody tr.selected');
+                if (fromFileList === false) {
+                    fileRow = $('#torrentFilesTableDiv table tbody tr[data-row-id="0"]');
+                }
+            } else {
+                fileRow = fileRow.previousSibling;
+            }
+            fileIndex = fileRow.getAttribute('data-row-id');
+            let fileName = fileRow.querySelector('span[id^="filesTablefileName"]');
+            isRowFolder = (fileRow.querySelector('.filesTableCollapseIcon') != null);
+            if (isRowFolder) {
+                let rowCollapseIcon = fileRow.querySelector('.filesTableCollapseIcon');
+                let folderLevel = getComputedStyle(rowCollapseIcon).marginLeft;
+                folderLevel = parseInt(folderLevel.substring(0, folderLevel.length - 2));
+                if (folderLevel < previousLevel || previousLevel == null) {
+                    previousLevel = folderLevel;
+                    pathParts.push(fileName.textContent);
+                }
+            } else if (pathParts.length === 0) {
+                let folderLevel = getComputedStyle(fileName).marginLeft;
+                folderLevel = parseInt(folderLevel.substring(0, folderLevel.length - 2)) - 39;
+                previousLevel = folderLevel;
+                pathParts.push(fileName.textContent);
+            }
+        }
+        let fileNamePath = pathParts.reverse().join('\\');
+    
+        
         let pathLocal = pathRemote
             .replace(Ladderr.basePathRemote, Ladderr.basePathLocal)
             .replace('/', '\\');
-        console.debug('[Ladderr] Opening local path: ' + pathLocal);
-        pathLocal = 'ladderr:' + pathLocal + '\\' + filenamePath;
-        pathLocal = encodeURI(pathLocal);
-        window.open(pathLocal);
-
+    
+        let protocol = '';
+        if (action === 'open') {
+            protocol = 'ladderr-open:';
+        } else if (action === 'select') {
+            protocol = 'ladderr-select:';
+        } else {
+            if (fromFileList === false && isRowFolder) {
+                protocol = 'ladderr-open:'; 
+            } else {
+                protocol = 'ladderr-select:';
+            }
+        }
+    
+        let uri = protocol + pathLocal + '\\' + fileNamePath;
+        console.debug('[Ladderr] URI created: ' + uri);
+        uri = encodeURI(uri);
+        window.open(uri);
     }
 
-    function launchHandler() {
+    function openContainingFolder() {
+        openUriLink(true, 'select');
+    }
 
+    function openFile() {
+        openUriLink(true, 'open');
+    }
+
+    function openDestinationFolder() {
         let panel = $('#propertiesPanel_wrapper');
         Ladderr.panelTabSelected = $('#propertiesTabs li.selected').id;
         Ladderr.panelCollapsed = panel.classList.contains('collapsed');
@@ -276,7 +354,7 @@
             let filesTableObserver = new MutationObserver((mutations, observer) => {
                 if ($('#filesTablefileName0')) {
                     observer.disconnect();
-                    openDestinationFolder();
+                    openUriLink(false, null);
                     $(`#${Ladderr.panelTabSelected}`).click();
                     if ($('#propertiesPanel_wrapper').classList.contains('expanded') && Ladderr.panelCollapsed) {
                         $('#propertiesPanel_collapseToggle').click();
@@ -292,13 +370,13 @@
                 $('#PropFilesLink').click();
             }
         } else {
-            openDestinationFolder();
+            openUriLink(false, null);
         }
 
     }
 
     function processPage() {
-        createContextMenuItem();
+        createContextMenuItems();
         createSettingsMenu();
         loadSettings();
     }
@@ -308,4 +386,4 @@
         processPage();
     }, 250);
 
-})();
+})();   
