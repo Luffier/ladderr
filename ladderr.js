@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ladderr
-// @version      0.2
+// @version      0.3
 // @description  Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 // @author       luffier
 // @namespace    ladderr
@@ -126,13 +126,15 @@
             if (Ladderr.pageTimeout) {
                 clearTimeout(Ladderr.pageTimeout);
                 Ladderr.pageTimeout = setTimeout(() => {
-                    let appName = document.getElementsByName('application-name')[0].getAttribute('content')
-                    if (appName == 'qBittorrent') {
+                    let appNameElement = document.getElementsByName('application-name');
+                    if (appNameElement.length > 0 && appNameElement[0].getAttribute('content') == 'qBittorrent') {
                         console.debug(`[Ladderr] Page ready in ${Date.now() - Ladderr.pageTimer}ms!`);
                         clearTimeout(Ladderr.pageTimeout);
                         Ladderr.pageTimeout = null;
                         observer.disconnect();
                         callback();
+                    } else {
+                        console.debug(`[Ladderr] Page is not a qBittorrent WebUI`);
                     }
                 }, intervalTime)
             } else {
@@ -268,8 +270,7 @@
         let torrent = torrentTable.querySelector('tbody tr.selected');
         let done = torrent.querySelector(`td:nth-child(${doneHeaderIndex + 1}) div div`).textContent;
         if (done == '0.0%') {
-            console.log('[Ladderr] Can\'t open folder for not initialized torrents');
-            return;
+            return null;
         }
         let pathHeader = torrentTableHeader.querySelector('th[title="Save path"]');
         let pathHeaderIndex = torrentTableHeaders.indexOf(pathHeader);
@@ -278,6 +279,10 @@
 
     function openUriLink(fromFileList=false, action=null) {
         let pathRemote = getTorrentRemotePath();
+        if (!pathRemote) {
+            console.log('[Ladderr] Can\'t open folder or file for not initialized torrents');
+            return;
+        }
     
         // Get torrent filename
         let pathParts  = [];
@@ -372,12 +377,25 @@
         } else {
             openUriLink(false, null);
         }
+    }
 
+    function createDoubleClickEvent() {
+        addEventListener($('#torrentFilesTableDiv table'), 'dblclick', (e) => {
+            let torrentFilesTable = $('#torrentFilesTableDiv table');
+            let element = e.target;
+            while (element) {
+                if (element === torrentFilesTable) {
+                    openFile();
+                }
+                element = element.parentNode;
+            }
+        });
     }
 
     function processPage() {
         createContextMenuItems();
         createSettingsMenu();
+        createDoubleClickEvent();
         loadSettings();
     }
 

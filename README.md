@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://i.imgur.com/56zhYu9.png" width="350px">
+  <img src="https://i.imgur.com/56zhYu9.png" width="350px" style="border: 1px solid black">
 </p>
 
 # ladderr
@@ -37,7 +37,7 @@ We need to map your qBittorrent remote root path to your local network root path
 This can be done by going to the `Tools` navbar menu and clicking `Ladderr Options`.
 
 <p align="center">
-  <img src="https://i.imgur.com/QieOGul.png" width="250px">
+  <img src="https://i.imgur.com/QieOGul.png" width="250px" style="border: 1px solid black">
 </p>
 
 The remote path should be the root folder that you configured 
@@ -45,7 +45,7 @@ in `Default Save Path` (`Options\Downloads\Saving Management`) and your local ro
 path the equivalent in your local machine.
 
 <p align="center">
-  <img src="https://i.imgur.com/ZjmngnB.png" width="350px">
+  <img src="https://i.imgur.com/ZjmngnB.png" width="250px" style="border: 1px solid black">
 </p>
 
 
@@ -61,15 +61,15 @@ And if you have an NFS\SMB\Samba server:
 
 ## What's next
 
-- Fix problems with torrents containing whitespaces or non-ASCII characters
-- Drop Python dependency (I don't know if it's possible, in theory, VB could be used; any help would be appreciated)
-- Linux support (low priority as I don't use it daily; any help would be appreciated)
+- Fix problems with torrents containing whitespaces or non-ASCII characters.
+- Drop Python dependency (I don't know if it's possible, in theory, VB could be used; any help would be appreciated).
+- Linux support (low priority as I don't use it daily; any help would be appreciated).
 
 ## Limitations
 
 - Only works in Windows.
-- If your Web UI uses HTTP, it will open a new tab and ask for permission. **For a more seamless experience, use HTTPS** (if your server is local, look up self-signed certs with mkcert)
-- File paths containing whitespaces or non-ASCII characters may not work
+- If your Web UI uses HTTP, it will open a new tab and ask for permission. **For a more seamless experience, use HTTPS** (if your server is local, look up self-signed certs with mkcert).
+- File paths containing whitespaces or non-ASCII characters may not work.
 
 ## Security concerns
 
@@ -88,11 +88,16 @@ And add your URL, for example: `// @match https://192.168.1.100:8080/` or `// @m
   - **Initial version**
 
 - v0.2
-  
-  - **Added `Open` and `Open containing folder` in the `Content` tab.**
 
   <p align="center">
-    <img src="https://i.imgur.com/JzmH6rT.png" width="250px">
+    <img src="https://i.imgur.com/JzmH6rT.png" width="150px" style="border: 1px solid black">
   </p>
 
-  - *Technical*: splitted URI protocol into two `ladderr-open:` and `ladderr-select:` to allow opening files directly. Reinstalling `ladderr.reg` is necessary.
+  - **Added `Open` and `Open containing folder` in the `Content` tab.**
+
+  - ***Technical***: splitted URI protocol into two `ladderr-open:` and `ladderr-select:` to allow opening files directly. If you installed v0.1, you need to reinstall `ladderr.reg`.
+
+
+- v0.3
+
+  - **Added hability to open file/folder by double clicking in the  `Content` tab.**
