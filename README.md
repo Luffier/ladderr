@@ -12,9 +12,10 @@ to your network drive, exactly mimicking the desktop behavior.
 
 After mapping your remote and local path in the script settings, Ladderr can create a
 protocol link pointing to your local files (by using the information already available
-in the Web UI). When the `Open destination folder`, `Open` or `Open containing folder`
-link is clicked, the protocol is invoked, and a console window (which opens and closes rapidly)
-executes a Python script that parses the path and opens it.
+in the Web UI). When opening a file or folder (by using the `Open destination folder`,
+`Open` or `Open containing folder` menu items or by double-clicking the file or folder 
+in the `Content` tab), the protocol is invoked, and a console window (which opens
+and closes rapidly) executes a Python script that parses the path and opens it.
 
 The files in this repo:
 - ladderr.js: the userscript itself
@@ -27,7 +28,7 @@ To learn more about protocol handlers, you can read [MS-URI-Handlers](https://gi
 ## How to use
 
 - Install [Python 3](https://www.python.org/downloads/) (make sure to check `Add python.exe to PATH` during installation. Afterwards, you'll have to restart your session or PC).
-- Install the custom protocol handlers by double clicking `ladderr.reg` (can be easily removed with `uninstall-ladderr.reg`).
+- Install the custom protocol handlers by double-clicking `ladderr.reg` (can be easily removed with `uninstall-ladderr.reg`).
 - Install the userscript from [openuserjs](https://openuserjs.org/scripts/luffier/Ladderr), [greasyfork](https://greasyfork.org/scripts/479135-ladderr) or directly from this repo.
 - Configure the root path mapping in the script settings menu (see section below).
 
@@ -63,7 +64,7 @@ And if you have an NFS\SMB\Samba server:
 
 - Fix problems with torrents containing whitespaces or non-ASCII characters.
 - Drop Python dependency (I don't know if it's possible, in theory, VB could be used; any help would be appreciated).
-- Linux support (low priority as I don't use it daily; any help would be appreciated).
+- Linux support (any help would be appreciated).
 
 ## Limitations
 
@@ -84,9 +85,9 @@ Unfortunately, you'll have to do this with each update.
 
 ## Changelog
 
-- v0.1
-  
-  - **Initial version**
+- v0.3
+
+  - **Added hability to open files and folders by double-clicking (in the `Content` tab).**
 
 - v0.2
 
@@ -98,7 +99,6 @@ Unfortunately, you'll have to do this with each update.
 
   - ***Technical***: splitted URI protocol into two `ladderr-open:` and `ladderr-select:` to allow opening files directly. If you installed v0.1, you need to reinstall `ladderr.reg`.
 
+- v0.1
 
-- v0.3
-
-  - **Added hability to open file/folder by double clicking in the  `Content` tab.**
+  - **Initial version**
