@@ -80,6 +80,7 @@ Remove the following lines: `// @match https://*/` and `// @match http://*/ `.
 
 And add your URL, for example: `// @match https://192.168.1.100:8080/` or `// @match http://myserver.local/`.
 
+Unfortunately, you'll have to do this with each update.
 
 ## Changelog
 

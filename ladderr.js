@@ -252,7 +252,7 @@
 
     }
 
-    // Get the remote path of the selected torrent 
+    // Get the remote path of the selected torrent
     function getTorrentRemotePath() {
         if (Ladderr.basePathRemote == null || Ladderr.basePathLocal == null) {
             console.log('[Ladderr] Please configure your local and remote paths');
@@ -283,9 +283,9 @@
             console.log('[Ladderr] Can\'t open folder or file for not initialized torrents');
             return;
         }
-    
+
         // Get torrent filename
-        let pathParts  = [];
+        let pathParts = [];
         let previousLevel = null;
         let fileIndex = null;
         let fileRow = null;
@@ -318,12 +318,12 @@
             }
         }
         let fileNamePath = pathParts.reverse().join('\\');
-    
-        
+
+
         let pathLocal = pathRemote
             .replace(Ladderr.basePathRemote, Ladderr.basePathLocal)
             .replace('/', '\\');
-    
+
         let protocol = '';
         if (action === 'open') {
             protocol = 'ladderr-open:';
@@ -331,12 +331,12 @@
             protocol = 'ladderr-select:';
         } else {
             if (fromFileList === false && isRowFolder) {
-                protocol = 'ladderr-open:'; 
+                protocol = 'ladderr-open:';
             } else {
                 protocol = 'ladderr-select:';
             }
         }
-    
+
         let uri = protocol + pathLocal + '\\' + fileNamePath;
         console.debug('[Ladderr] URI created: ' + uri);
         uri = encodeURI(uri);
@@ -404,4 +404,4 @@
         processPage();
     }, 250);
 
-})();   
+})();
