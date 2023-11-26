@@ -29,7 +29,7 @@ To learn more about protocol handlers, you can read [MS-URI-Handlers](https://gi
 
 - Install [Python 3](https://www.python.org/downloads/) (make sure to check `Add python.exe to PATH` during installation. Afterwards, you'll have to restart your session or PC).
 - Install the custom protocol handlers by double-clicking `ladderr.reg` (can be easily removed with `uninstall-ladderr.reg`).
-- Install the userscript from [openuserjs](https://openuserjs.org/scripts/luffier/Ladderr), [greasyfork](https://greasyfork.org/scripts/479135-ladderr) or directly from this repo.
+- Install the userscript from [greasyfork](https://greasyfork.org/scripts/479135-ladderr), [openuserjs](https://openuserjs.org/scripts/luffier/Ladderr) or directly from the [repo](https://github.com/Luffier/ladderr).
 - Configure the root path mapping in the script settings menu (see section below).
 
 ### Path mapping
@@ -85,20 +85,12 @@ Unfortunately, you'll have to do this with each update.
 
 ## Changelog
 
-- v0.3
+#### Version 0.3
+- Added hability to open files and folders by double-clicking (in the `Content` tab).
 
-  - **Added hability to open files and folders by double-clicking (in the `Content` tab).**
+#### Version 0.2
+- Added `Open` and `Open containing folder` in the `Content` tab.
+- _Technical_: splitted URI protocol into two `ladderr-open:` and `ladderr-select:` to allow opening files directly. **If you installed v0.1, you need to reinstall `ladderr.reg`.**
 
-- v0.2
-
-  <p align="center">
-    <img src="https://i.imgur.com/JzmH6rT.png" width="150px" style="border: 1px solid black">
-  </p>
-
-  - **Added `Open` and `Open containing folder` in the `Content` tab.**
-
-  - ***Technical***: splitted URI protocol into two `ladderr-open:` and `ladderr-select:` to allow opening files directly. If you installed v0.1, you need to reinstall `ladderr.reg`.
-
-- v0.1
-
-  - **Initial version**
+#### Version 0.1
+- Initial version.
