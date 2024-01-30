@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ladderr
-// @version      0.3
+// @version      0.3.1
 // @description  Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 // @author       luffier
 // @namespace    ladderr
@@ -101,7 +101,6 @@
 
     // Function to replicate the `on` function in jQuery
     function addEventListener(el, eventName, eventHandler, selector) {
-
         if (selector) {
             const wrappedHandler = (e) => {
                 if (e.target && e.target.matches(selector)) {
@@ -114,48 +113,52 @@
             el.addEventListener(eventName, eventHandler);
             return eventHandler;
         }
+    }
 
+    // Checks if the current page is a qBittorrent Web UI page
+    function isCurrentPageValid() {
+        const appNameElement = document.getElementsByName('application-name');
+        if (appNameElement.length > 0) {
+            return appNameElement[0].getAttribute('content') === 'qBittorrent';
+        }
+        return false;
     }
 
     // Executes the callback after the page finishes loading
     function whenPageReady(callback, intervalTime, maxWaitTime = 2500) {
-
         Ladderr.pageTimer = Date.now();
         console.debug('[Ladderr] Waiting for page to load');
-        let observerCallback = (mutations, observer) => {
+        const observerCallback = (mutations, observer) => {
             if (Ladderr.pageTimeout) {
                 clearTimeout(Ladderr.pageTimeout);
                 Ladderr.pageTimeout = setTimeout(() => {
-                    let appNameElement = document.getElementsByName('application-name');
-                    if (appNameElement.length > 0 && appNameElement[0].getAttribute('content') == 'qBittorrent') {
+                    clearTimeout(Ladderr.pageTimeout);
+                    Ladderr.pageTimeout = null;
+                    observer.disconnect();
+                    if (isCurrentPageValid()) {
                         console.debug(`[Ladderr] Page ready in ${Date.now() - Ladderr.pageTimer}ms!`);
-                        clearTimeout(Ladderr.pageTimeout);
-                        Ladderr.pageTimeout = null;
-                        observer.disconnect();
                         callback();
                     } else {
-                        console.debug(`[Ladderr] Page is not a qBittorrent WebUI`);
+                        console.debug(`[Ladderr] Page is not a qBittorrent Web UI`);
                     }
                 }, intervalTime)
             } else {
                 observer.disconnect();
             }
         };
-        let observer = new MutationObserver(observerCallback);
+        const observer = new MutationObserver(observerCallback);
         observer.observe($('body'), {
             attributes: true,
             childList: true,
             subtree: true
         });
-
     }
 
     // Create menu items for the different context menus
     function createContextMenuItems() {
-
         // Torrents queue list ("Open destination folder" context menu item)
-        let queueMenuItem = $('#queueingMenuItems');
-        let openDestinationMenutItem = createElement(`
+        const queueMenuItem = $('#queueingMenuItems');
+        const openDestinationMenutItem = createElement(`
         <li>
             <a><img src="images/directory.svg" alt="Open destination folder">
                 <span>Open destination folder</span>
@@ -166,8 +169,8 @@
         queueMenuItem.after(openDestinationMenutItem);
 
         // Torrent files ("Open" context menu item)
-        let torrentFilesMenu = $('#torrentFilesMenu');
-        let openMenuItem = createElement(`
+        const torrentFilesMenu = $('#torrentFilesMenu');
+        const openMenuItem = createElement(`
         <li>
             <a><img src="images/folder-documents.svg" alt="Open"> Open</a>
         </li>
@@ -176,20 +179,19 @@
         torrentFilesMenu.append(openMenuItem);
 
         // Torrent files ("Open containing folder" context menu item)
-        let openContainingMenuItem = createElement(`
+        const openContainingMenuItem = createElement(`
         <li>
             <a><img src="images/directory.svg" alt="Open containing folder"> Open containing folder</a>
         </li>
         `);
         addEventListener(openContainingMenuItem, 'click', openContainingFolder);
         torrentFilesMenu.append(openContainingMenuItem);
-
     }
 
     // Save Ladderr settings to localStorage
     async function saveSettings() {
-        let basePathRemote = $('#ladderrSettingsMenu_pathRemote').value;
-        let basePathLocal = $('#ladderrSettingsMenu_pathLocal').value;
+        const basePathRemote = $('#ladderrSettingsMenu_pathRemote').value;
+        const basePathLocal = $('#ladderrSettingsMenu_pathLocal').value;
         await GM.setValue(Ladderr.url + 'pathRemote', basePathRemote);
         await GM.setValue(Ladderr.url + 'pathLocal', basePathLocal);
         Ladderr.basePathRemote = basePathRemote;
@@ -198,8 +200,8 @@
 
     // Load Ladderr settings from localStorage
     async function loadSettings() {
-        let basePathRemote = await GM.getValue(Ladderr.url + 'pathRemote', Ladderr.basePathRemote);
-        let basePathLocal = await GM.getValue(Ladderr.url + 'pathLocal', Ladderr.basePathLocal);
+        const basePathRemote = await GM.getValue(Ladderr.url + 'pathRemote', Ladderr.basePathRemote);
+        const basePathLocal = await GM.getValue(Ladderr.url + 'pathLocal', Ladderr.basePathLocal);
         $('#ladderrSettingsMenu_pathRemote').value = basePathRemote;
         $('#ladderrSettingsMenu_pathLocal').value = basePathLocal;
         Ladderr.basePathRemote = basePathRemote;
@@ -208,9 +210,8 @@
 
     // Create Ladderr settings menu
     function createSettingsMenu() {
-
         // Settings menu
-        let ladderrSettingsMenu = createElement(`
+        const ladderrSettingsMenu = createElement(`
             <div id="ladderrSettingsMenu">
                 <div class="header">Ladderr Settings Menu</div>
                 <div class="variable">
@@ -237,7 +238,7 @@
         });
 
         // Open settings context menu item
-        let ladderrSettingsIcon = createElement(`
+        const ladderrSettingsIcon = createElement(`
             <li>
                 <a id="ladderrOptions">
                     <img class="MyMenuIcon" src="images/configure.svg" alt="Ladderr Options" width="16" height="16" style="filter: hue-rotate(180deg);">Ladderr Options
@@ -249,7 +250,6 @@
             loadSettings();
             $('#ladderrSettingsMenu').style.display = 'block';
         });
-
     }
 
     // Get the remote path of the selected torrent
@@ -260,32 +260,32 @@
         }
 
         // Get 'Save path' column index
-        let torrentTable = $('#torrentsTableDiv table');
-        let torrentTableHeader = torrentTable.querySelector('thead tr');
-        let torrentTableHeaders = Array.from(torrentTableHeader.children);
-        let doneHeader = torrentTableHeader.querySelector('th[title="Done"]');
-        let doneHeaderIndex = torrentTableHeaders.indexOf(doneHeader);
+        const torrentTable = $('#torrentsTableDiv table');
+        const torrentTableHeader = torrentTable.querySelector('thead tr');
+        const torrentTableHeaders = Array.from(torrentTableHeader.children);
+        const doneHeader = torrentTableHeader.querySelector('th[title="Done"]');
+        const doneHeaderIndex = torrentTableHeaders.indexOf(doneHeader);
 
         // Get torrent remote path
-        let torrent = torrentTable.querySelector('tbody tr.selected');
-        let done = torrent.querySelector(`td:nth-child(${doneHeaderIndex + 1}) div div`).textContent;
+        const torrent = torrentTable.querySelector('tbody tr.selected');
+        const done = torrent.querySelector(`td:nth-child(${doneHeaderIndex + 1}) div div`).textContent;
         if (done == '0.0%') {
             return null;
         }
-        let pathHeader = torrentTableHeader.querySelector('th[title="Save path"]');
-        let pathHeaderIndex = torrentTableHeaders.indexOf(pathHeader);
+        const pathHeader = torrentTableHeader.querySelector('th[title="Save path"]');
+        const pathHeaderIndex = torrentTableHeaders.indexOf(pathHeader);
         return torrent.querySelector(`td:nth-child(${pathHeaderIndex + 1})`).textContent;
     }
 
     function openUriLink(fromFileList=false, action=null) {
-        let pathRemote = getTorrentRemotePath();
+        const pathRemote = getTorrentRemotePath();
         if (!pathRemote) {
             console.log('[Ladderr] Can\'t open folder or file for not initialized torrents');
             return;
         }
 
         // Get torrent filename
-        let pathParts = [];
+        const pathParts = [];
         let previousLevel = null;
         let fileIndex = null;
         let fileRow = null;
@@ -300,10 +300,10 @@
                 fileRow = fileRow.previousSibling;
             }
             fileIndex = fileRow.getAttribute('data-row-id');
-            let fileName = fileRow.querySelector('span[id^="filesTablefileName"]');
+            const fileName = fileRow.querySelector('span[id^="filesTablefileName"]');
             isRowFolder = (fileRow.querySelector('.filesTableCollapseIcon') != null);
             if (isRowFolder) {
-                let rowCollapseIcon = fileRow.querySelector('.filesTableCollapseIcon');
+                const rowCollapseIcon = fileRow.querySelector('.filesTableCollapseIcon');
                 let folderLevel = getComputedStyle(rowCollapseIcon).marginLeft;
                 folderLevel = parseInt(folderLevel.substring(0, folderLevel.length - 2));
                 if (folderLevel < previousLevel || previousLevel == null) {
@@ -317,10 +317,10 @@
                 pathParts.push(fileName.textContent);
             }
         }
-        let fileNamePath = pathParts.reverse().join('\\');
+        const fileNamePath = pathParts.reverse().join('\\');
 
 
-        let pathLocal = pathRemote
+        const pathLocal = pathRemote
             .replace(Ladderr.basePathRemote, Ladderr.basePathLocal)
             .replace('/', '\\');
 
@@ -352,11 +352,11 @@
     }
 
     function openDestinationFolder() {
-        let panel = $('#propertiesPanel_wrapper');
+        const panel = $('#propertiesPanel_wrapper');
         Ladderr.panelTabSelected = $('#propertiesTabs li.selected').id;
         Ladderr.panelCollapsed = panel.classList.contains('collapsed');
         if (Ladderr.panelCollapsed || Ladderr.panelTabSelected != 'PropFilesLink') {
-            let filesTableObserver = new MutationObserver((mutations, observer) => {
+            const filesTableObserver = new MutationObserver((mutations, observer) => {
                 if ($('#filesTablefileName0')) {
                     observer.disconnect();
                     openUriLink(false, null);
@@ -381,7 +381,7 @@
 
     function createDoubleClickEvent() {
         addEventListener($('#torrentFilesTableDiv table'), 'dblclick', (e) => {
-            let torrentFilesTable = $('#torrentFilesTableDiv table');
+            const torrentFilesTable = $('#torrentFilesTableDiv table');
             let element = e.target;
             while (element) {
                 if (element === torrentFilesTable) {

@@ -2,8 +2,11 @@
   <img src="https://i.imgur.com/56zhYu9.png" width="350px" style="border: 1px solid black">
 </p>
 
+
 # ladderr
 Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
+
+⚠️ The script is enable by defaults on all pages, see [section below](#security-concerns) if you want to fix this ⚠️
 
 ## How does it work?
 
@@ -83,7 +86,7 @@ And add your URL, for example: `// @match https://192.168.1.100:8080/` or `// @m
 
 Unfortunately, you'll have to do this with each update.
 
-## Changelog
+## Recent changes
 
 #### Version 0.3
 - Added hability to open files and folders by double-clicking (in the `Content` tab).
@@ -91,6 +94,3 @@ Unfortunately, you'll have to do this with each update.
 #### Version 0.2
 - Added `Open` and `Open containing folder` in the `Content` tab.
 - _Technical_: splitted URI protocol into two `ladderr-open:` and `ladderr-select:` to allow opening files directly. **If you installed v0.1, you need to reinstall `ladderr.reg`.**
-
-#### Version 0.1
-- Initial version.
