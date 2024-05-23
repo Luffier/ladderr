@@ -340,7 +340,8 @@
         let uri = protocol + pathLocal + '\\' + fileNamePath;
         console.debug('[Ladderr] URI created: ' + uri);
         uri = encodeURI(uri);
-        window.open(uri);
+        const opener = window.open(uri);
+        opener.close();
     }
 
     function openContainingFolder() {
