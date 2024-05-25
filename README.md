@@ -9,14 +9,15 @@ Access your remote files directly from qBittorrent Web UI, just like in the desk
 
 ## How does it work?
 
-By leveraging protocol handlers, a File Explorer window can be opened directly 
+By leveraging protocol handlers, a File Explorer window can be opened directly
 to a specified network path. This replicates the desktop behavior identically.
 
 After mapping your remote and local path in the script settings, Ladderr can create a
 protocol link pointing to your local files (by using information that's already available
 in the Web UI). When opening a file or folder (by using the `Open destination folder`,
-`Open` or `Open containing folder` menu items or by double-clicking the file or folder 
-in the `Content` tab), the protocol is invoked and an inline Powershell script is executed to parse and open the target path.
+`Open` or `Open containing folder` menu items or by double-clicking the file or folder
+in the `Content` tab), the protocol is invoked and an inline Powershell script is executed
+to parse and open the target path.
 
 The files in this repo:
 - ladderr.js: the userscript itself
@@ -68,18 +69,31 @@ And if you have an NFS\SMB\Samba server:
 ## Limitations
 
 - Only works in Windows.
-- If your Web UI uses HTTP, it will open a new tab and ask for permission. **For a more seamless experience, use HTTPS** (if your server is local, look up self-signed certs with mkcert).
-- File paths containing whitespaces or non-ASCII characters may not work.
+- File paths containing multiple whitespaces or non-ASCII characters may not work.
 
 ## Security concerns
 
-Since everyone's Web UI will have a different URL, **the script is active on all pages by default**. However, it will only do its thing when it detects that the page is indeed a qBittorrent Web UI. You can always change this in the script metadata block: 
+Protocol handlers are not the [safest](https://web.archive.org/web/20240503063048/https://fieldeffect.com/blog/details-on-microsoft-windows-protocol-handlers-abuse-publicly-available),
+and custom protocols that execute a console command even less. A remote code execution, albeit unlikely, is possible. There's an open [issue](https://github.com/Luffier/ladderr/issues/3) discussing this topic.
+In the meantime, to mitigate this you should change the pages where the script is active, as explained below.
+
+Since everyone's Web UI will have a different URL, **the script is active on all pages by default**.
+There's a check to detect when the page is a qBittorrent Web UI but to be safe you should change this.
+
+In Tapermonkey, for example:
+
+1. Go to your `Dashboard`.
+2. Hover over the Ladderr entry and click the `Edit` button in the rightmost column.
+3. Go to the `Settings` tab (left side below the Ladderr logo).
+4. Deselect `Original matches` in the `Includes/Excludes` section.
+5. Add your qBittorrent Web UI URL by clicking `Add...` below the `User matches` box.
+
+Alternatively, if your extension doesn't allow this, you can do it manually:
 
 1. Remove the following lines: `// @match https://*/` and `// @match http://*/ `.
-
 2. Add your custom URL. For example: `// @match https://192.168.1.100:8080/` or `// @match http://myserver.local/`.
 
-Unfortunately, you'll have to do this with each update.
+Unfortunately, if done manually, you'll have to redo this with each update.
 
 ## Recent changes
 
