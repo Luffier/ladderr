@@ -62,20 +62,12 @@ And if you have an NFS\SMB\Samba server:
 - **Local root path**: `\\server_name_or_ip\very\long\path\downloads`
 
 ## What's next
-
-- Fix problems with torrents containing whitespaces or non-ASCII characters.
 - Linux support (any help would be appreciated).
 
 ## Limitations
-
 - Only works in Windows.
-- File paths containing multiple whitespaces or non-ASCII characters may not work.
 
 ## Security concerns
-
-Protocol handlers are not the [safest](https://web.archive.org/web/20240503063048/https://fieldeffect.com/blog/details-on-microsoft-windows-protocol-handlers-abuse-publicly-available),
-and custom protocols that execute a console command even less. A remote code execution, albeit unlikely, is possible. There's an open [issue](https://github.com/Luffier/ladderr/issues/3) discussing this topic.
-In the meantime, to mitigate this you should change the pages where the script is active, as explained below.
 
 Since everyone's Web UI will have a different URL, **the script is active on all pages by default**.
 There's a check to detect when the page is a qBittorrent Web UI but to be safe you should change this.
@@ -97,11 +89,15 @@ Unfortunately, if done manually, you'll have to redo this with each update.
 
 ## Recent changes
 
+#### Version 0.5
+- Fix RCE vulnerability.
+- Add unicode support and fix issue with whitespaces.
+- **Note: You will need to re-install the latest `ladderr.reg`.**
+
 #### Version 0.4
 - Powershell popup window no longer appears.
 - New browser window/tab closes itself immediately after opening a file/folder.
 - Removed dependency from Python by replacing it with Powershell.
-- **Note: You will need to re-install the latest `ladderr.reg`.**
 
 #### Version 0.3
 - Added ability to open files and folders by double-clicking (in the `Content` tab).
