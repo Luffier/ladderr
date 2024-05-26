@@ -5,6 +5,8 @@
 # ladderr
 Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 
+💥 You will need to re-install the latest [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/ladderr.reg) with version 0.5 💥
+
 ⚠️ The script is enabled on all pages by default. See [section below](#security-concerns) if you want to fix this ⚠️
 
 ## How does it work?
@@ -29,7 +31,7 @@ To learn more about protocol handlers, you can read [MS-URI-Handlers](https://gi
 
 ## How to use
 
-- Install the custom protocol handlers by double-clicking `ladderr.reg` (can be easily removed with `uninstall-ladderr.reg`).
+- Install the custom protocol handlers by double-clicking [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/ladderr.reg) (can be easily removed with [`uninstall-ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/uninstall-ladderr.reg)).
 - Install the userscript from [greasyfork](https://greasyfork.org/scripts/479135-ladderr), [openuserjs](https://openuserjs.org/scripts/luffier/Ladderr) or directly from the [repo](https://github.com/Luffier/ladderr).
 - Configure the root path mapping in the script settings menu (see section below).
 
@@ -49,7 +51,6 @@ path the equivalent in your local machine.
 <p align="center">
   <img src="https://i.imgur.com/ZjmngnB.png" width="250px" style="border: 1px solid black">
 </p>
-
 
 For example, if you have a network location:
 - *Default Save Path*: `/data/downloads`
@@ -86,6 +87,10 @@ Alternatively, if your extension doesn't allow this, you can do it manually:
 2. Add your custom URL. For example: `// @match https://192.168.1.100:8080/` or `// @match http://myserver.local/`.
 
 Unfortunately, if done manually, you'll have to redo this with each update.
+
+## How to uninstall
+
+
 
 ## Recent changes
 
