@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ladderr
-// @version      0.5
+// @version      0.6
 // @description  Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 // @author       luffier
 // @namespace    ladderr
