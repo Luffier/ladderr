@@ -91,7 +91,7 @@ Unfortunately, if done manually, you'll have to redo this with each update.
 ## Recent changes
 
 #### Version 0.6
-- Fix max path length limitation
+- Fix max path length limitation.
 - **Note: You will need to re-install the latest `ladderr.reg`.**
 
 #### Version 0.5
