@@ -88,10 +88,6 @@ Alternatively, if your extension doesn't allow this, you can do it manually:
 
 Unfortunately, if done manually, you'll have to redo this with each update.
 
-## How to uninstall
-
-
-
 ## Recent changes
 
 #### Version 0.5
