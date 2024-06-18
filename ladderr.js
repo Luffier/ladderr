@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ladderr
-// @version      0.5
+// @version      0.5.1
 // @description  Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 // @author       luffier
 // @namespace    ladderr
@@ -17,6 +17,7 @@
 // @supportURL   https://github.com/Luffier/ladderr/issues
 // ==/UserScript==
 
+/* globals GM */
 /* jshint esversion: 8 */
 
 (() => {
@@ -322,7 +323,7 @@
 
         const pathLocal = pathRemote
             .replace(Ladderr.basePathRemote, Ladderr.basePathLocal)
-            .replace('/', '\\');
+            .replaceAll('/', '\\');
 
         let protocol = '';
         if (action === 'open') {
