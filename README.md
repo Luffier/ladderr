@@ -5,6 +5,8 @@
 # ladderr
 Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 
+Current version: [v0.5.2](#Recent-changes)
+
 💥 You will need to re-install the latest [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/ladderr.reg) with version 0.6 💥
 
 ⚠️ The script is enabled on all pages by default. See [section below](#security-concerns) if you want to fix this ⚠️
@@ -90,13 +92,13 @@ Unfortunately, if done manually, you'll have to redo this with each update.
 
 ## Recent changes
 
-#### Version 0.6
-- Fix max path length limitation.
-- **Note: You will need to re-install the latest `ladderr.reg`.**
-
 #### Version 0.5
 - Fix RCE vulnerability.
 - Add unicode support and fix issue with whitespaces.
+- 0.5.1: Fix for paths with depth (relative to the base path)
+- 0.5.2: Fix for paths containing commas
+- 0.5.3: Remove dependency on VBScript
+- **Note: You will need to re-install the latest `ladderr.reg`.**
 
 #### Version 0.4
 - Powershell popup window no longer appears.

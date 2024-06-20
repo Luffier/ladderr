@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ladderr
-// @version      0.6
+// @version      0.5.3
 // @description  Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 // @author       luffier
 // @namespace    ladderr
@@ -113,6 +113,11 @@
             el.addEventListener(eventName, eventHandler);
             return eventHandler;
         }
+    }
+
+    // Encode string to Base64 UTF-8
+    function toBase64String(str) {
+        return btoa(unescape(encodeURIComponent(str)));
     }
 
     // Checks if the current page is a qBittorrent Web UI page
@@ -322,7 +327,7 @@
 
         const pathLocal = pathRemote
             .replace(Ladderr.basePathRemote, Ladderr.basePathLocal)
-            .replace('/', '\\');
+            .replaceAll('/', '\\');
 
         let protocol = '';
         if (action === 'open') {
@@ -337,8 +342,8 @@
             }
         }
 
-        const remotePath = `${pathLocal}\\${fileNamePath}`;
-        const encodedRemotePath = btoa(unescape(encodeURIComponent(remotePath)))
+        const remotePath = `"${pathLocal}\\${fileNamePath}"`;
+        const encodedRemotePath = toBase64String(remotePath)
         const uri = `${protocol}${encodedRemotePath}`;
 
         console.debug('[Ladderr] Remote path: ', remotePath);
