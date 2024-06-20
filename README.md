@@ -5,7 +5,7 @@
 # ladderr
 Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 
-Current version: [v0.5.1](#Recent-changes)
+Current version: [v0.5.2](#Recent-changes)
 
 💥 You will need to re-install the latest [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/ladderr.reg) with version 0.5 💥
 
@@ -96,6 +96,7 @@ Unfortunately, if done manually, you'll have to redo this with each update.
 - Fix RCE vulnerability.
 - Add unicode support and fix issue with whitespaces.
 - 0.5.1: Fix for paths with depth (relative to the base path)
+- 0.5.2: Fix for paths containing commas
 - **Note: You will need to re-install the latest `ladderr.reg`.**
 
 
