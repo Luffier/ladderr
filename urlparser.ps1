@@ -9,10 +9,10 @@ Start-Process explorer.exe ([System.Text.Encoding]::UTF8.GetString([System.Conve
 #> 
 
 # Open windows explorer and pre-select a target file (hidden window)
-conhost.exe --headless powershell -WindowStyle Hidden -Command $url = '%1' -replace 'ladderr-select:', ''; Start-Process explorer.exe ('/select,' + ([System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($url))))
+conhost.exe --headless powershell -WindowStyle Hidden -Command $url = '%1' -replace 'ladderr-select:', ''; $decodedUrl = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($url)); $fso = New-Object -ComObject Scripting.FileSystemObject; $path = if (Test-Path -LiteralPath $decodedUrl -PathType Container) { $fso.GetFolder($decodedUrl).ShortPath } else { $fso.GetFile($decodedUrl).ShortPath }; $path = $('\\\"' + $path + '\\\"'); Start-Process explorer.exe $path
 
 # Open a target file (hidden window)
-conhost.exe --headless powershell -WindowStyle Hidden -Command $url = '%1' -replace 'ladderr-open:', ''; Start-Process explorer.exe ([System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($url)))
+conhost.exe --headless powershell -WindowStyle Hidden -Command $url = '%1' -replace 'ladderr-open:', ''; $decodedUrl = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($url)); $fso = New-Object -ComObject Scripting.FileSystemObject; $path = if (Test-Path -LiteralPath $decodedUrl -PathType Container) { $fso.GetFolder($decodedUrl).ShortPath } else { $fso.GetFile($decodedUrl).ShortPath }; $path = $('\\\"' + $path + '\\\"'); Start-Process explorer.exe ('/select,' + $path)
 
 <# 
     Alternative approaches for hiding the powershell window:
