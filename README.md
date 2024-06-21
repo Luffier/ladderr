@@ -75,13 +75,21 @@ And if you have an NFS\SMB\Samba server:
 Since everyone's Web UI will have a different URL, **the script is active on all pages by default**.
 There's a check to detect when the page is a qBittorrent Web UI but to be safe you should change this.
 
-In Tapermonkey, for example:
+For Tapermonkey:
 
 1. Go to your `Dashboard`.
 2. Hover over the Ladderr entry and click the `Edit` button in the rightmost column.
 3. Go to the `Settings` tab (left side below the Ladderr logo).
 4. Deselect `Original matches` in the `Includes/Excludes` section.
 5. Add your qBittorrent Web UI URL by clicking `Add...` below the `User matches` box.
+
+For Violentmonkey:
+
+1. Go to your `Dashboard` (⚙️ icon).
+2. Hover over the Ladderr entry and click the `Edit` button (`</>` icon).
+3. Go to the `Settings` tab.
+4. Deselect `Keep original` under `@match rules`.
+5. Add your qBittorrent Web UI URL in the adjacent text box.
 
 Alternatively, if your extension doesn't allow this, you can do it manually:
 
