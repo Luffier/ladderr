@@ -342,7 +342,7 @@
             }
         }
 
-        const remotePath = `"${pathLocal}\\${fileNamePath}"`;
+        const remotePath = `${pathLocal}\\${fileNamePath}`;
         const encodedRemotePath = toBase64String(remotePath)
         const uri = `${protocol}${encodedRemotePath}`;
 
