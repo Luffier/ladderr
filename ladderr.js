@@ -32,7 +32,7 @@
             position: absolute;
             z-index: 9999;
             top: 100px;
-            width: 300px;
+            width: 500px;
             height: 144px;
             left: 200px;
             background-color: white;
@@ -349,7 +349,7 @@
         console.debug('[Ladderr] Remote path: ', remotePath);
         console.debug('[Ladderr] URI created: ', uri);
 
-        const opener = window.open(uri);
+        const opener = window.open(uri, '_self');
         opener.close();
     }
 

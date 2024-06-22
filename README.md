@@ -5,7 +5,7 @@
 # ladderr
 Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 
-Current version: [v0.5.4](#Recent-changes)
+Current version: [v0.5.5](#Recent-changes)
 
 💥 You will need to re-install the latest [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/ladderr.reg) with version 0.5.4 💥
 
@@ -14,7 +14,7 @@ Current version: [v0.5.4](#Recent-changes)
 ## How does it work?
 
 By leveraging protocol handlers, a File Explorer window can be opened directly
-to a specified network path. This replicates the desktop behavior identically.
+to a specified network path.
 
 After mapping your remote and local path in the script settings, Ladderr can create a
 protocol link pointing to your local files (by using information that's already available
@@ -69,6 +69,7 @@ And if you have an NFS\SMB\Samba server:
 
 ## Limitations
 - Only works in Windows.
+- In Chromium-based browsers and when using HTTP, it will ask for permission when opening a new file/folder. For a more seamless experience, use HTTPS (if your server is local, look up self-signed certs with mkcert).
 
 ## Security concerns
 
@@ -107,6 +108,7 @@ Unfortunately, if done manually, you'll have to redo this with each update.
 - 0.5.2: Fix for paths containing commas
 - 0.5.3: Fix for certain unicode characters
 - 0.5.4: Fix for paths longer than 259 characters
+- 0.5.5: Fix for Chromium browsers when opening a file/folder for the first time.
 - **Note: You will need to re-install the latest `ladderr.reg`.**
 
 #### Version 0.4
