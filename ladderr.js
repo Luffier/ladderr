@@ -349,8 +349,7 @@
         console.debug('[Ladderr] Remote path: ', remotePath);
         console.debug('[Ladderr] URI created: ', uri);
 
-        const opener = window.open(uri, '_self');
-        opener.close();
+        window.open(uri, '_self');
     }
 
     function openContainingFolder() {
