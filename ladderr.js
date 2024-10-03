@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ladderr
-// @version      0.5.5
+// @version      0.5.6
 // @description  Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 // @author       luffier
 // @namespace    ladderr
@@ -15,6 +15,8 @@
 // @sandbox      raw
 // @homepageURL  https://github.com/Luffier/ladderr
 // @supportURL   https://github.com/Luffier/ladderr/issues
+// @downloadURL https://update.greasyfork.org/scripts/479135/Ladderr.user.js
+// @updateURL https://update.greasyfork.org/scripts/479135/Ladderr.meta.js
 // ==/UserScript==
 
 /* jshint esversion: 8 */
@@ -28,47 +30,53 @@
     const style = `
     <style>
         #ladderrSettingsMenu {
-            font-family: 'proxima nova', 'Helvetica', 'Arial', 'sans-serif';
+            background-color: var(--color-background-popup);
+            color: var(--color-text-default);
             position: absolute;
             z-index: 9999;
             top: 100px;
             width: 500px;
-            height: 144px;
             left: 200px;
-            background-color: white;
             font-size: 12px;
-            color: black;
-            box-shadow: rgba(0, 0, 0, 1) 1px 0 6px;
-            border-radius: 10px;
+            box-shadow: black 1px 0 6px;
+            border-radius: 5px;
         }
         #ladderrSettingsMenu .header {
-            background-color: rgb(217, 217, 217);
-            border-bottom: 1px solid #ebebeb;
-            padding: 15px 0 10px 0;
-            font-size: 20px;
-            text-align: center;
-            border-radius: 10px 10px 0 0;
+            background-color: var(--color-background-default);
+            border-bottom: 1px solid var(--color-border-default);
+            border-radius: 5px 5px 0 0;
         }
-        #ladderrSettingsMenu .variable {
-            margin: 8px 8px 8px 12px;
+        #ladderrSettingsMenu .header h3 {
+            padding: 5px 10px 4px 12px;
+        }
+        #ladderrSettingsMenu .main {
             display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
         }
-        #ladderrSettingsMenu .variable span {
+        #ladderrSettingsMenu .main .variable {
+            display: flex;
+            align-items: center;
+            padding-bottom: 10px;
+            flex-grow: 1;
+        }
+        #ladderrSettingsMenu .main .variable span {
             width: 90px;
             font-weight: bold;
         }
-        #ladderrSettingsMenu .variable input[type="text"] {
+        #ladderrSettingsMenu .main .variable input[type="text"] {
             flex-grow: 1;
-            border: 2px inset black;
         }
         #ladderrSettingsMenu .footer {
             display: flex;
             justify-content: center;
+            padding-bottom: 10px;
         }
         #ladderrSettingsMenu .footer button {
-            background-color: rgb(240, 240, 240);
             margin: 0px 10px;
-            cursor: pointer;
         }
     </style>
     `;
@@ -218,12 +226,16 @@
         // Settings menu
         const ladderrSettingsMenu = createElement(`
             <div id="ladderrSettingsMenu">
-                <div class="header">Ladderr Settings Menu</div>
-                <div class="variable">
-                    <span>· Remote path:</span><input type="text" id="ladderrSettingsMenu_pathRemote" size="10" />
+                <div class="header">
+                    <h3>Ladderr Settings Menu</h3>
                 </div>
-                <div class="variable">
-                    <span>· Local path:</span><input type="text" id="ladderrSettingsMenu_pathLocal" size="10" />
+                <div class="main">
+                    <div class="variable">
+                        <span>· Remote path:</span><input type="text" id="ladderrSettingsMenu_pathRemote" size="10" />
+                    </div>
+                    <div class="variable">
+                        <span>· Local path:</span><input type="text" id="ladderrSettingsMenu_pathLocal" size="10" />
+                    </div>
                 </div>
                 <div class="footer">
                     <button id="ladderrSettingsMenu_saveBtn" title="Save settings" class="saveclose_buttons">Save</button>
@@ -268,16 +280,16 @@
         const torrentTable = $('#torrentsTableDiv table');
         const torrentTableHeader = torrentTable.querySelector('thead tr');
         const torrentTableHeaders = Array.from(torrentTableHeader.children);
-        const doneHeader = torrentTableHeader.querySelector('th[title="Done"]');
-        const doneHeaderIndex = torrentTableHeaders.indexOf(doneHeader);
+        const progressHeader = torrentTableHeader.querySelector('th.column_progress');
+        const progressHeaderIndex = torrentTableHeaders.indexOf(progressHeader);
 
         // Get torrent remote path
         const torrent = torrentTable.querySelector('tbody tr.selected');
-        const done = torrent.querySelector(`td:nth-child(${doneHeaderIndex + 1}) div div`).textContent;
-        if (done == '0.0%') {
+        const progress = torrent.querySelector(`td:nth-child(${progressHeaderIndex + 1}) div div`).textContent;
+        if (progress == '0.0%') {
             return null;
         }
-        const pathHeader = torrentTableHeader.querySelector('th[title="Save path"]');
+        const pathHeader = torrentTableHeader.querySelector('th.column_save_path');
         const pathHeaderIndex = torrentTableHeaders.indexOf(pathHeader);
         return torrent.querySelector(`td:nth-child(${pathHeaderIndex + 1})`).textContent;
     }
