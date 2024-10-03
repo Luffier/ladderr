@@ -15,8 +15,6 @@
 // @sandbox      raw
 // @homepageURL  https://github.com/Luffier/ladderr
 // @supportURL   https://github.com/Luffier/ladderr/issues
-// @downloadURL https://update.greasyfork.org/scripts/479135/Ladderr.user.js
-// @updateURL https://update.greasyfork.org/scripts/479135/Ladderr.meta.js
 // ==/UserScript==
 
 /* jshint esversion: 8 */
