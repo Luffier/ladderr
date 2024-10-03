@@ -9,7 +9,7 @@ Current version: [v0.5.6](#Recent-changes)
 
 💥 You will need to re-install the latest [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/ladderr.reg) with version 0.5.4 💥
 
-⚠️ The script is enabled on all pages by default. See [section below](#security-concerns) if you want to fix this ⚠️
+⚠️ The script is enabled on all pages by default. See [section below](#security-concerns) if you want to change this ⚠️
 
 ## How does it work?
 
@@ -43,7 +43,7 @@ We need to map your qBittorrent remote root path to your local network root path
 This can be done by going to the `Tools` navbar menu and clicking `Ladderr Options`.
 
 <p align="center">
-  <img src="https://i.imgur.com/QieOGul.png" width="250px" style="border: 1px solid black">
+  <img src="https://i.imgur.com/5mCUqHI.png" width="500px" style="border: 1px solid black">
 </p>
 
 The remote path should be the root folder that you configured 
@@ -51,7 +51,7 @@ in `Default Save Path` (`Options\Downloads\Saving Management`) and your local ro
 path the equivalent in your local machine.
 
 <p align="center">
-  <img src="https://i.imgur.com/ZjmngnB.png" width="250px" style="border: 1px solid black">
+  <img src="https://i.imgur.com/w4TrcBx.png" width="500px" style="border: 1px solid black">
 </p>
 
 For example, if you have a network location:
