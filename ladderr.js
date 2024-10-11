@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ladderr
-// @version      0.5.6
+// @version      0.5.7
 // @description  Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 // @author       luffier
 // @namespace    ladderr
@@ -186,7 +186,7 @@
             <a><img src="images/folder-documents.svg" alt="Open"> Open</a>
         </li>
         `);
-        addEventListener(openMenuItem, 'click', openFile);
+        addEventListener(openMenuItem, 'click', openDirectly);
         torrentFilesMenu.append(openMenuItem);
 
         // Torrent files ("Open containing folder" context menu item)
@@ -267,8 +267,7 @@
         });
     }
 
-    // Get the remote path of the selected torrent
-    function getTorrentRemotePath() {
+    function openUriLink(action=null) {
         if (Ladderr.basePathRemote == null || Ladderr.basePathLocal == null) {
             console.log('[Ladderr] Please configure your local and remote paths');
             return;
@@ -278,39 +277,32 @@
         const torrentTable = $('#torrentsTableDiv table');
         const torrentTableHeader = torrentTable.querySelector('thead tr');
         const torrentTableHeaders = Array.from(torrentTableHeader.children);
-        const progressHeader = torrentTableHeader.querySelector('th.column_progress');
-        const progressHeaderIndex = torrentTableHeaders.indexOf(progressHeader);
 
         // Get torrent remote path
-        const torrent = torrentTable.querySelector('tbody tr.selected');
-        const progress = torrent.querySelector(`td:nth-child(${progressHeaderIndex + 1}) div div`).textContent;
-        if (progress == '0.0%') {
-            return null;
-        }
+        const torrentRow = torrentTable.querySelector('tbody tr.selected');
         const pathHeader = torrentTableHeader.querySelector('th.column_save_path');
         const pathHeaderIndex = torrentTableHeaders.indexOf(pathHeader);
-        return torrent.querySelector(`td:nth-child(${pathHeaderIndex + 1})`).textContent;
-    }
+        const pathRemote = torrentRow.querySelector(`td:nth-child(${pathHeaderIndex + 1})`).textContent;
 
-    function openUriLink(fromFileList=false, action=null) {
-        const pathRemote = getTorrentRemotePath();
-        if (!pathRemote) {
-            console.log('[Ladderr] Can\'t open folder or file for not initialized torrents');
-            return;
-        }
-
-        // Get torrent filename
+        // Get torrent filename path
+        const fileTableHeader = $('#torrentFilesTableFixedHeaderDiv table thead tr');
+        const fileTableHeaders = Array.from(fileTableHeader.children);
+        const fileProgressHeader = fileTableHeader.querySelector('th.column_progress');
+        const fileProgressHeaderIndex = fileTableHeaders.indexOf(fileProgressHeader);
         const pathParts = [];
         let previousLevel = null;
         let fileIndex = null;
         let fileRow = null;
         let isRowFolder = null;
+        let isTreeDone = true;
+        let isTargetDone = true;
         while (fileIndex != 0) {
             if (fileRow == null) {
                 fileRow = $('#torrentFilesTableDiv table tbody tr.selected');
-                if (fromFileList === false) {
+                if (action === 'openDestination') {
                     fileRow = $('#torrentFilesTableDiv table tbody tr[data-row-id="0"]');
                 }
+                isTargetDone = (fileRow.querySelector(`td:nth-child(${fileProgressHeaderIndex + 1}) div div`).textContent !== '0.0%');
             } else {
                 fileRow = fileRow.previousSibling;
             }
@@ -322,6 +314,9 @@
                 let folderLevel = getComputedStyle(rowCollapseIcon).marginLeft;
                 folderLevel = parseInt(folderLevel.substring(0, folderLevel.length - 2));
                 if (folderLevel < previousLevel || previousLevel == null) {
+                    if (previousLevel !== null) {
+                        isTreeDone = !isTreeDone ? false : (fileRow.querySelector(`td:nth-child(${fileProgressHeaderIndex + 1}) div div`).textContent !== '0.0%');
+                    }
                     previousLevel = folderLevel;
                     pathParts.push(fileName.textContent);
                 }
@@ -332,42 +327,51 @@
                 pathParts.push(fileName.textContent);
             }
         }
-        const fileNamePath = pathParts.reverse().join('\\');
 
-
-        const pathLocal = pathRemote
-            .replace(Ladderr.basePathRemote, Ladderr.basePathLocal)
-            .replaceAll('/', '\\');
+        if ((action === 'openFolder' && !isTreeDone) ||
+            (action === 'openDirectly' && !isTargetDone) ||
+            (action === 'openDestination' && isRowFolder && !isTargetDone)) {
+            console.log('[Ladderr] Can\'t open folder or file for not initialized torrents');
+            return;
+        }
 
         let protocol = '';
-        if (action === 'open') {
+        if (action === 'openDirectly') {
             protocol = 'ladderr-open:';
-        } else if (action === 'select') {
-            protocol = 'ladderr-select:';
-        } else {
-            if (fromFileList === false && isRowFolder) {
-                protocol = 'ladderr-open:';
-            } else {
+        } else if (action === 'openFolder') {
+            if (isTargetDone) {
                 protocol = 'ladderr-select:';
+            } else {
+                protocol = 'ladderr-open:';
+                pathParts.shift();
+            }
+        } else if (action === 'openDestination') {
+            protocol = 'ladderr-open:';
+            if (!isRowFolder) {
+                pathParts.shift();
             }
         }
 
-        const remotePath = `${pathLocal}\\${fileNamePath}`;
+        const pathLocal = pathRemote.replace(Ladderr.basePathRemote, Ladderr.basePathLocal).replaceAll('/', '\\');
+        let fileNamePath = pathParts.reverse().join('\\');
+        if (fileNamePath.length > 0)  {
+            fileNamePath = `\\${fileNamePath}`;
+        }
+        const remotePath = pathLocal + fileNamePath;
         const encodedRemotePath = toBase64String(remotePath)
         const uri = `${protocol}${encodedRemotePath}`;
 
         console.debug('[Ladderr] Remote path: ', remotePath);
         console.debug('[Ladderr] URI created: ', uri);
-
         window.open(uri, '_self');
     }
 
     function openContainingFolder() {
-        openUriLink(true, 'select');
+        openUriLink('openFolder');
     }
 
-    function openFile() {
-        openUriLink(true, 'open');
+    function openDirectly() {
+        openUriLink('openDirectly');
     }
 
     function openDestinationFolder() {
@@ -378,7 +382,7 @@
             const filesTableObserver = new MutationObserver((mutations, observer) => {
                 if ($('#filesTablefileName0')) {
                     observer.disconnect();
-                    openUriLink(false, null);
+                    openUriLink(false, 'openDestination');
                     $(`#${Ladderr.panelTabSelected}`).click();
                     if ($('#propertiesPanel_wrapper').classList.contains('expanded') && Ladderr.panelCollapsed) {
                         $('#propertiesPanel_collapseToggle').click();
@@ -394,7 +398,7 @@
                 $('#PropFilesLink').click();
             }
         } else {
-            openUriLink(false, null);
+            openUriLink('openDestination');
         }
     }
 
@@ -404,7 +408,7 @@
             let element = e.target;
             while (element) {
                 if (element === torrentFilesTable) {
-                    openFile();
+                    openDirectly();
                 }
                 element = element.parentNode;
             }
