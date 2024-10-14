@@ -5,9 +5,9 @@
 # ladderr
 Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 
-Current version: [v0.5.7](#Recent-changes)
+Current version: [v0.5.8](#Recent-changes)
 
-💥 You will need to re-install the latest [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/ladderr.reg) with version 0.5.4 💥
+💥 You will need to re-install the latest [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/ladderr.reg) if you had a version prior to v0.5.4 💥
 
 ⚠️ The script is enabled on all pages by default. See [section below](#security-concerns) if you want to change this ⚠️
 
@@ -35,7 +35,7 @@ To learn more about protocol handlers, you can read [MS-URI-Handlers](https://gi
 
 - Install the custom protocol handlers by double-clicking [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/ladderr.reg) (can be easily removed with [`uninstall-ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/uninstall-ladderr.reg)).
 - Install the userscript from [greasyfork](https://greasyfork.org/scripts/479135-ladderr), [openuserjs](https://openuserjs.org/scripts/luffier/Ladderr) or directly from the [repo](https://github.com/Luffier/ladderr).
-- Configure the root path mapping in the script settings menu (see section below).
+- Configure the root path mapping in the settings menu (see section below).
 
 ### Path mapping
 
@@ -51,7 +51,7 @@ in `Default Save Path` (`Options\Downloads\Saving Management`) and your local ro
 path the equivalent in your local machine.
 
 <p align="center">
-  <img src="https://i.imgur.com/w4TrcBx.png" width="500px" style="border: 1px solid black">
+  <img src="https://i.imgur.com/e6pFYIU.png" width="500px" style="border: 1px solid black">
 </p>
 
 For example, if you have a network location:
@@ -111,7 +111,7 @@ Unfortunately, if done manually, you'll have to redo this with each update.
 - 0.5.5: Fix for Chromium browsers when opening a file/folder for the first time.
 - 0.5.6: Fix for qBittorrent 5.0 Web UI changes.
 - 0.5.7: Added ability to open parent folders of uninitialized files and folders.
-- **Note: You will need to re-install the latest `ladderr.reg`.**
+- 0.5.8: Added ability to open files and folders directly from the torrent list by double-clicking (see the settings menu).
 
 #### Version 0.4
 - Powershell popup window no longer appears.

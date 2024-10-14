@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ladderr
-// @version      0.5.7
+// @version      0.5.8
 // @description  Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 // @author       luffier
 // @namespace    ladderr
@@ -61,12 +61,15 @@
             padding-bottom: 10px;
             flex-grow: 1;
         }
-        #ladderrSettingsMenu .main .variable span {
+        #ladderrSettingsMenu .main .variable label:first-child {
             width: 90px;
             font-weight: bold;
         }
         #ladderrSettingsMenu .main .variable input[type="text"] {
             flex-grow: 1;
+        }
+        #ladderrSettingsMenu .main .variable input[type="checkbox"] {
+            margin-right: 1em;
         }
         #ladderrSettingsMenu .footer {
             display: flex;
@@ -84,6 +87,7 @@
         url: location.protocol + location.hostname + location.port,
         basePathLocal: null,
         basePathRemote: null,
+        dClickOpen: null,
         pageTimeout: true,
         pageTimer: null,
         panelCollapsed: null,
@@ -113,10 +117,10 @@
                     eventHandler(e);
                 }
             };
-            el.addEventListener(eventName, wrappedHandler);
+            el.addEventListener(eventName, wrappedHandler, true);
             return wrappedHandler;
         } else {
-            el.addEventListener(eventName, eventHandler);
+            el.addEventListener(eventName, eventHandler, true);
             return eventHandler;
         }
     }
@@ -136,7 +140,7 @@
     }
 
     // Executes the callback after the page finishes loading
-    function whenPageReady(callback, intervalTime, maxWaitTime = 2500) {
+    function whenPageReady(callback, intervalTime) {
         Ladderr.pageTimer = Date.now();
         console.debug('[Ladderr] Waiting for page to load');
         const observerCallback = (mutations, observer) => {
@@ -203,20 +207,33 @@
     async function saveSettings() {
         const basePathRemote = $('#ladderrSettingsMenu_pathRemote').value;
         const basePathLocal = $('#ladderrSettingsMenu_pathLocal').value;
+        const dClickOpen = $('#ladderrSettingsMenu_dClickOpen').checked;
         await GM.setValue(Ladderr.url + 'pathRemote', basePathRemote);
         await GM.setValue(Ladderr.url + 'pathLocal', basePathLocal);
+        await GM.setValue(Ladderr.url + 'dClickOpen', `${dClickOpen}`);
         Ladderr.basePathRemote = basePathRemote;
         Ladderr.basePathLocal = basePathLocal;
+        Ladderr.dClickOpen = dClickOpen;
+        $('#torrentsTableDiv table').removeEventListener('dblclick', handleMainDClick, true);
+        if (dClickOpen) {
+            addEventListener($('#torrentsTableDiv table'), 'dblclick', handleMainDClick);
+        }
     }
 
     // Load Ladderr settings from localStorage
     async function loadSettings() {
         const basePathRemote = await GM.getValue(Ladderr.url + 'pathRemote', Ladderr.basePathRemote);
         const basePathLocal = await GM.getValue(Ladderr.url + 'pathLocal', Ladderr.basePathLocal);
+        const dClickOpen = (await GM.getValue(Ladderr.url + 'dClickOpen', Ladderr.dClickOpen)) === 'true';
         $('#ladderrSettingsMenu_pathRemote').value = basePathRemote;
         $('#ladderrSettingsMenu_pathLocal').value = basePathLocal;
+        $('#ladderrSettingsMenu_dClickOpen').checked = dClickOpen;
         Ladderr.basePathRemote = basePathRemote;
         Ladderr.basePathLocal = basePathLocal;
+        Ladderr.dClickOpen = dClickOpen;
+        if (dClickOpen) {
+            addEventListener($('#torrentsTableDiv table'), 'dblclick', handleMainDClick);
+        }
     }
 
     // Create Ladderr settings menu
@@ -229,10 +246,13 @@
                 </div>
                 <div class="main">
                     <div class="variable">
-                        <span>· Remote path:</span><input type="text" id="ladderrSettingsMenu_pathRemote" size="10" />
+                        <label>· Remote path:</label><input type="text" id="ladderrSettingsMenu_pathRemote" size="10" />
                     </div>
                     <div class="variable">
-                        <span>· Local path:</span><input type="text" id="ladderrSettingsMenu_pathLocal" size="10" />
+                        <label>· Local path:</label><input type="text" id="ladderrSettingsMenu_pathLocal" size="10" />
+                    </div>
+                    <div class="variable">
+                        <input type="checkbox" id="ladderrSettingsMenu_dClickOpen"/><label for="ladderrSettingsMenu_dClickOpen">Open destination folder with double-click</label>
                     </div>
                 </div>
                 <div class="footer">
@@ -244,11 +264,11 @@
         $('#desktop').append(ladderrSettingsMenu);
         ladderrSettingsMenu.style.display = 'none';
 
-        addEventListener($('#ladderrSettingsMenu_saveBtn'), 'click', function() {
+        addEventListener($('#ladderrSettingsMenu_saveBtn'), 'click', () => {
             saveSettings();
             $('#ladderrSettingsMenu').style.display = 'none';
         });
-        addEventListener($('#ladderrSettingsMenu_closeBtn'), 'click', function() {
+        addEventListener($('#ladderrSettingsMenu_closeBtn'), 'click', () => {
             $('#ladderrSettingsMenu').style.display = 'none';
         });
 
@@ -261,7 +281,7 @@
             </li>
         `);
         $('#preferencesLink').parentNode.after(ladderrSettingsIcon);
-        addEventListener(ladderrSettingsIcon, 'click', function() {
+        addEventListener(ladderrSettingsIcon, 'click', () => {
             loadSettings();
             $('#ladderrSettingsMenu').style.display = 'block';
         });
@@ -354,7 +374,7 @@
 
         const pathLocal = pathRemote.replace(Ladderr.basePathRemote, Ladderr.basePathLocal).replaceAll('/', '\\');
         let fileNamePath = pathParts.reverse().join('\\');
-        if (fileNamePath.length > 0)  {
+        if (fileNamePath.length > 0) {
             fileNamePath = `\\${fileNamePath}`;
         }
         const remotePath = pathLocal + fileNamePath;
@@ -382,7 +402,7 @@
             const filesTableObserver = new MutationObserver((mutations, observer) => {
                 if ($('#filesTablefileName0')) {
                     observer.disconnect();
-                    openUriLink(false, 'openDestination');
+                    openUriLink('openDestination');
                     $(`#${Ladderr.panelTabSelected}`).click();
                     if ($('#propertiesPanel_wrapper').classList.contains('expanded') && Ladderr.panelCollapsed) {
                         $('#propertiesPanel_collapseToggle').click();
@@ -402,24 +422,34 @@
         }
     }
 
-    function createDoubleClickEvent() {
-        addEventListener($('#torrentFilesTableDiv table'), 'dblclick', (e) => {
-            const torrentFilesTable = $('#torrentFilesTableDiv table');
-            let element = e.target;
-            while (element) {
-                if (element === torrentFilesTable) {
-                    openDirectly();
-                }
-                element = element.parentNode;
+    function handleContentDClick(event) {
+        let element = event.target;
+        while (element) {
+            if (element === this) {
+                openDirectly();
+                break;
             }
-        });
+            element = element.parentNode;
+        }
+    }
+
+    function handleMainDClick(event) {
+        event.stopPropagation();
+        let element = event.target;
+        while (element) {
+            if (element === this) {
+                openDestinationFolder();
+                break;
+            }
+            element = element.parentNode;
+        }
     }
 
     function processPage() {
-        createContextMenuItems();
         createSettingsMenu();
-        createDoubleClickEvent();
         loadSettings();
+        createContextMenuItems();
+        addEventListener($('#torrentFilesTableDiv table'), 'dblclick', handleContentDClick);
     }
 
     whenPageReady(() => {
