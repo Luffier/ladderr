@@ -11,6 +11,8 @@ Current version: [v0.5.8](#Recent-changes)
 
 ⚠️ The script is enabled on all pages by default. See [section below](#security-concerns) if you want to change this ⚠️
 
+⚠️ There's a bug in Windows that keeps explorer.exe processes open even after closing their respective window, if you never restart your machine you may be filling your RAM inadvertently. This issue seems to be fixed in the 24H2 update (see [related issue](https://github.com/Luffier/ladderr/issues/17)) ⚠️
+
 ## How does it work?
 
 By leveraging protocol handlers, a File Explorer window can be opened directly
@@ -69,7 +71,7 @@ And if you have an NFS\SMB\Samba server:
 
 ## Limitations
 - Only works in Windows.
-- In Chromium-based browsers and when using HTTP, it will ask for permission when opening a new file/folder. For a more seamless experience, use HTTPS (if your server is local, look up self-signed certs with mkcert).
+- In Chromium-based browsers, and when using HTTP, it will ask for permission when opening a new file/folder. For a more seamless experience, use HTTPS. If your server is local, look up self-signed certs with mkcert, or use this [solution](https://www.youtube.com/watch?v=qlcVx-k-02E).
 
 ## Security concerns
 
