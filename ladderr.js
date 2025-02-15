@@ -409,7 +409,7 @@
 
         const dangerousFileExtension = getDangerousFileExtension(fileNamePath);
         if (Ladderr.warnDangerousFiles && dangerousFileExtension) {
-            if (!confirm(`Are you sure you want to open this "${dangerousFileExtension}" file? This file type could potentially be harmful.`)) {
+            if (!confirm(`Are you sure you want to open this ${dangerousFileExtension} file? This file type could potentially be harmful.`)) {
                 return;
             }
         }
