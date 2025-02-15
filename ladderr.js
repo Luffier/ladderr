@@ -82,6 +82,10 @@
     </style>
     `;
 
+    const dangerousFileExtensions = ['.exe', '.com', '.cmd', '.bat', '.pif', '.scr', '.vbs', '.js', '.wsf', '.wsh', '.hta', '.cpl', '.dll', '.msi', '.msp', '.cab', '.ps1', '.py', '.reg', '.inf', '.url', '.vbe', '.jse', '.lnk', '.scf', '.application', '.gadget', '.appref-ms', '.shb', '.shs' ];
+
+    const checkDangerousFileExtensions = true;
+
     // Helper for whenPageReady function
     const Ladderr = {
         url: location.protocol + location.hostname + location.port,
@@ -287,6 +291,11 @@
         });
     }
 
+    function getDangerousFileExtension(filename) {
+        return dangerousFileExtensions.find(x => filename?.endsWith(x));
+    }
+
+
     function openUriLink(action=null) {
         if (Ladderr.basePathRemote == null || Ladderr.basePathLocal == null) {
             console.log('[Ladderr] Please configure your local and remote paths');
@@ -380,6 +389,13 @@
         const remotePath = pathLocal + fileNamePath;
         const encodedRemotePath = toBase64String(remotePath)
         const uri = `${protocol}${encodedRemotePath}`;
+
+        const dangerousFileExtension = getDangerousFileExtension(fileNamePath);
+        if (checkDangerousFileExtensions && dangerousFileExtension) {
+            if (!confirm(`Are you sure you want to open this "${dangerousFileExtension}" file? This file type could potentially be harmful.`)) {
+                return;
+            }
+        }
 
         console.debug('[Ladderr] Remote path: ', remotePath);
         console.debug('[Ladderr] URI created: ', uri);
