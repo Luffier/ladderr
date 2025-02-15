@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ladderr
-// @version      0.5.8
+// @version      0.5.9
 // @description  Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 // @author       luffier
 // @namespace    ladderr
@@ -308,8 +308,8 @@
     }
 
     function getDangerousFileExtension(filename) {
-        const extensions = Ladderr.dangerousExtensions.split(',');
-        return extensions.find(x => filename?.endsWith(x));
+        const extensions = Ladderr.dangerousExtensions?.split(',');
+        return extensions?.find(x => filename?.endsWith(x));
     }
 
 
