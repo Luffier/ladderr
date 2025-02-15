@@ -8,7 +8,7 @@
 // @copyright    2023, luffier (https://github.com/Luffier)
 // @match        https://*/
 // @match        http://*/
-// @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAkFBMVEUAAAAxxP4xw/4wxP4uw/8xxP4ww/4xw/4py/8xxP4ww/4zxP4xxP8wxP4wxP4wxP4wxP4wxP4wxP4wxP4wxP4wxP8vw/8yw/8wxP4xxP4wxP4wxP8wxP4wxP4ww/4xxP4wxP4xxP8xwv8ws/8xxv8xxP8xxP8vxP4xxf4xxv4vxP4wxf4yw/8vx/8wwv4xxP/uOx+5AAAAL3RSTlMA65pkPIzXtQbJeicZxvn18d3PubCDUArl2r6ooJRuamBCHQUSwHZbWEhGNTMgFcZCVYAAAAD3SURBVDjLZZPZkoIwEACDCKtgkEM5VARl76v//+/2ZYXMpN+6qqkiyYx5MJCbmZij0Rwp0hnLxQsuCE5ecMImMxWdFxQki4zsvSBjXOQGv0ayg9tiKXyr4AuKeKaDWgU1bB0yriq4ErhaEqkgYuvqgbMKzhxc7bEqsJSRg6VVQYsim4zLBOHOoYa7CH5g7fpduVmrL6aMdxG8wVoQ8CqCBI9eBD1xKLDyXvybiyiNvnv9NsIDBu91G0cbyANBDqkRE/TyJKjEhJlPeDaSPaNjoT/FHYlYq9jfk5VYq3alKKicoAKf2Iht3rg0m2YgF78cGsXH/8H+ALCrJ8qsl2pUAAAAAElFTkSuQmCC
+// @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAkFBMVEUAAAAxxP4xw/4wxP4uw/8xxP4ww/4xw/4py/8xxP4ww/4zxP4xxP8wxP4wxP4wxP4wxP4wxP4wxP4wxP4wxP8vw/8yw/8wxP4xxP4wxP4wxP8wxP4wxP4ww/4xxP4wxP4xxP8xwv8ws/8xxv8xxP8xxP8vxP4xxf4xxv4vxP4wxf4yw/8vx/8wwv4xxP/uOx+5AAAAL3RSTlMA65pkPIzXtQbJeicZxvn18d3PubCDUArl2r6ooJRuamBCHQUSwHZbWEhGNTMgFcZCVYAAAAD3SURBVDjLZZPZkoIwEACDCKtgkEM5VARl76v//+/2ZYXMpN+6qqkiyYx5MJCbmZij0Rwp0hnLxQsuCE5ecMImMxWdFxQki4zsvSBjXOQGv0ayg9tiKXyr4AuKeKaDWgU1bB0yriq4ErhaEqkgYuvqgbMKzhxc7bEqsJSRg6VVQYsim4zLBOHOoYa7CH5g7fpduVmrL6aMdxG8wVoQ8CqCBI9eBD1xKLDyXvybiyiNvnv9NsIDBu91G0cbyANBDqkRE/TyJKjEhJlPeDaSPaNjoT/FHYlYq9jfk5VYq3alKKicoAKf2Iht3rg0m2YgF78cGsXH/8H+ALCrJ8qsl2pUAAAAAElFTkSuQmCC
 // @grant        GM.getValue
 // @grant        GM.setValue
 // @run-at       document-end
@@ -82,10 +82,6 @@
     </style>
     `;
 
-    const dangerousFileExtensions = ['.exe', '.com', '.cmd', '.bat', '.pif', '.scr', '.vbs', '.js', '.wsf', '.wsh', '.hta', '.cpl', '.dll', '.msi', '.msp', '.cab', '.ps1', '.py', '.reg', '.inf', '.url', '.vbe', '.jse', '.lnk', '.scf', '.application', '.gadget', '.appref-ms', '.shb', '.shs' ];
-
-    const checkDangerousFileExtensions = true;
-
     // Helper for whenPageReady function
     const Ladderr = {
         url: location.protocol + location.hostname + location.port,
@@ -96,6 +92,8 @@
         pageTimer: null,
         panelCollapsed: null,
         panelTabSelected: null,
+        warnDangerousFiles: true,
+        dangerousExtensions: '.exe,.com,.cmd,.bat,.pif,.scr,.vbs,.js,.wsf,.wsh,.hta,.cpl,.dll,.msi,.msp,.cab,.ps1,.py,.reg,.inf,.url,.vbe,.jse,.lnk,.scf,.application,.gadget,.appref-ms,.shb,.shs'
     }
 
     /* FUNCTIONS */
@@ -212,12 +210,18 @@
         const basePathRemote = $('#ladderrSettingsMenu_pathRemote').value;
         const basePathLocal = $('#ladderrSettingsMenu_pathLocal').value;
         const dClickOpen = $('#ladderrSettingsMenu_dClickOpen').checked;
+        const warnDangerousFiles = $('#ladderrSettingsMenu_warnDangerous').checked;
+        const dangerousExtensions = $('#ladderrSettingsMenu_dangerousExtensions').value;
         await GM.setValue(Ladderr.url + 'pathRemote', basePathRemote);
         await GM.setValue(Ladderr.url + 'pathLocal', basePathLocal);
         await GM.setValue(Ladderr.url + 'dClickOpen', `${dClickOpen}`);
+        await GM.setValue(Ladderr.url + 'warnDangerousFiles', `${warnDangerousFiles}`);
+        await GM.setValue(Ladderr.url + 'dangerousExtensions', dangerousExtensions);
         Ladderr.basePathRemote = basePathRemote;
         Ladderr.basePathLocal = basePathLocal;
         Ladderr.dClickOpen = dClickOpen;
+        Ladderr.warnDangerousFiles = warnDangerousFiles;
+        Ladderr.dangerousExtensions = dangerousExtensions;
         $('#torrentsTableDiv table').removeEventListener('dblclick', handleMainDClick, true);
         if (dClickOpen) {
             addEventListener($('#torrentsTableDiv table'), 'dblclick', handleMainDClick);
@@ -229,12 +233,18 @@
         const basePathRemote = await GM.getValue(Ladderr.url + 'pathRemote', Ladderr.basePathRemote);
         const basePathLocal = await GM.getValue(Ladderr.url + 'pathLocal', Ladderr.basePathLocal);
         const dClickOpen = (await GM.getValue(Ladderr.url + 'dClickOpen', Ladderr.dClickOpen)) === 'true';
+        const warnDangerousFiles = (await GM.getValue(Ladderr.url + 'warnDangerousFiles', Ladderr.warnDangerousFiles)) === 'true';
+        const dangerousExtensions = await GM.getValue(Ladderr.url + 'dangerousExtensions', Ladderr.dangerousExtensions);
         $('#ladderrSettingsMenu_pathRemote').value = basePathRemote;
         $('#ladderrSettingsMenu_pathLocal').value = basePathLocal;
         $('#ladderrSettingsMenu_dClickOpen').checked = dClickOpen;
+        $('#ladderrSettingsMenu_warnDangerous').checked = warnDangerousFiles;
+        $('#ladderrSettingsMenu_dangerousExtensions').value = dangerousExtensions;
         Ladderr.basePathRemote = basePathRemote;
         Ladderr.basePathLocal = basePathLocal;
         Ladderr.dClickOpen = dClickOpen;
+        Ladderr.warnDangerousFiles = warnDangerousFiles;
+        Ladderr.dangerousExtensions = dangerousExtensions;
         if (dClickOpen) {
             addEventListener($('#torrentsTableDiv table'), 'dblclick', handleMainDClick);
         }
@@ -257,6 +267,12 @@
                     </div>
                     <div class="variable">
                         <input type="checkbox" id="ladderrSettingsMenu_dClickOpen"/><label for="ladderrSettingsMenu_dClickOpen">Open destination folder with double-click</label>
+                    </div>
+                    <div class="variable">
+                        <input type="checkbox" id="ladderrSettingsMenu_warnDangerous"/><label for="ladderrSettingsMenu_warnDangerous">Warn when opening dangerous file types</label>
+                    </div>
+                    <div class="variable">
+                        <label>· Extensions:</label><input type="text" id="ladderrSettingsMenu_dangerousExtensions" size="10" />
                     </div>
                 </div>
                 <div class="footer">
@@ -292,7 +308,8 @@
     }
 
     function getDangerousFileExtension(filename) {
-        return dangerousFileExtensions.find(x => filename?.endsWith(x));
+        const extensions = Ladderr.dangerousExtensions.split(',');
+        return extensions.find(x => filename?.endsWith(x));
     }
 
 
@@ -391,7 +408,7 @@
         const uri = `${protocol}${encodedRemotePath}`;
 
         const dangerousFileExtension = getDangerousFileExtension(fileNamePath);
-        if (checkDangerousFileExtensions && dangerousFileExtension) {
+        if (Ladderr.warnDangerousFiles && dangerousFileExtension) {
             if (!confirm(`Are you sure you want to open this "${dangerousFileExtension}" file? This file type could potentially be harmful.`)) {
                 return;
             }
