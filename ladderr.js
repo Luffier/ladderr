@@ -408,7 +408,7 @@
         const uri = `${protocol}${encodedRemotePath}`;
 
         const dangerousFileExtension = getDangerousFileExtension(fileNamePath);
-        if (Ladderr.warnDangerousFiles && dangerousFileExtension) {
+        if (Ladderr.warnDangerousFiles && dangerousFileExtension && protocol === 'ladderr-open:') {
             if (!confirm(`Are you sure you want to open this ${dangerousFileExtension} file? This file type could potentially be harmful.`)) {
                 return;
             }
