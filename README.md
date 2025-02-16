@@ -5,7 +5,7 @@
 # ladderr
 Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 
-Current version: [v0.5.8](#Recent-changes)
+Current version: [v0.5.9](#Recent-changes)
 
 💥 You will need to re-install the latest [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/ladderr.reg) if you had a version prior to v0.5.4 💥
 
