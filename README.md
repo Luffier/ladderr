@@ -114,6 +114,7 @@ Unfortunately, if done manually, you'll have to redo this with each update.
 - 0.5.6: Fix for qBittorrent 5.0 Web UI changes.
 - 0.5.7: Added ability to open parent folders of uninitialized files and folders.
 - 0.5.8: Added ability to open files and folders directly from the torrent list by double-clicking (see the settings menu).
+- 0.5.9: Added confirmation prompt for opening potentially harmful files. File extensions are configurable. 
 
 #### Version 0.4
 - Powershell popup window no longer appears.

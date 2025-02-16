@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ladderr
-// @version      0.5.8
+// @version      0.5.9
 // @description  Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 // @author       luffier
 // @namespace    ladderr
@@ -92,6 +92,8 @@
         pageTimer: null,
         panelCollapsed: null,
         panelTabSelected: null,
+        warnDangerousFiles: true,
+        dangerousExtensions: '.exe,.com,.cmd,.bat,.pif,.scr,.vbs,.js,.wsf,.wsh,.hta,.cpl,.dll,.msi,.msp,.cab,.ps1,.py,.reg,.inf,.url,.vbe,.jse,.lnk,.scf,.application,.gadget,.appref-ms,.shb,.shs'
     }
 
     /* FUNCTIONS */
@@ -208,12 +210,18 @@
         const basePathRemote = $('#ladderrSettingsMenu_pathRemote').value;
         const basePathLocal = $('#ladderrSettingsMenu_pathLocal').value;
         const dClickOpen = $('#ladderrSettingsMenu_dClickOpen').checked;
+        const warnDangerousFiles = $('#ladderrSettingsMenu_warnDangerous').checked;
+        const dangerousExtensions = $('#ladderrSettingsMenu_dangerousExtensions').value;
         await GM.setValue(Ladderr.url + 'pathRemote', basePathRemote);
         await GM.setValue(Ladderr.url + 'pathLocal', basePathLocal);
         await GM.setValue(Ladderr.url + 'dClickOpen', `${dClickOpen}`);
+        await GM.setValue(Ladderr.url + 'warnDangerousFiles', `${warnDangerousFiles}`);
+        await GM.setValue(Ladderr.url + 'dangerousExtensions', dangerousExtensions);
         Ladderr.basePathRemote = basePathRemote;
         Ladderr.basePathLocal = basePathLocal;
         Ladderr.dClickOpen = dClickOpen;
+        Ladderr.warnDangerousFiles = warnDangerousFiles;
+        Ladderr.dangerousExtensions = dangerousExtensions;
         $('#torrentsTableDiv table').removeEventListener('dblclick', handleMainDClick, true);
         if (dClickOpen) {
             addEventListener($('#torrentsTableDiv table'), 'dblclick', handleMainDClick);
@@ -225,12 +233,18 @@
         const basePathRemote = await GM.getValue(Ladderr.url + 'pathRemote', Ladderr.basePathRemote);
         const basePathLocal = await GM.getValue(Ladderr.url + 'pathLocal', Ladderr.basePathLocal);
         const dClickOpen = (await GM.getValue(Ladderr.url + 'dClickOpen', Ladderr.dClickOpen)) === 'true';
+        const warnDangerousFiles = (await GM.getValue(Ladderr.url + 'warnDangerousFiles', Ladderr.warnDangerousFiles)) === 'true';
+        const dangerousExtensions = await GM.getValue(Ladderr.url + 'dangerousExtensions', Ladderr.dangerousExtensions);
         $('#ladderrSettingsMenu_pathRemote').value = basePathRemote;
         $('#ladderrSettingsMenu_pathLocal').value = basePathLocal;
         $('#ladderrSettingsMenu_dClickOpen').checked = dClickOpen;
+        $('#ladderrSettingsMenu_warnDangerous').checked = warnDangerousFiles;
+        $('#ladderrSettingsMenu_dangerousExtensions').value = dangerousExtensions;
         Ladderr.basePathRemote = basePathRemote;
         Ladderr.basePathLocal = basePathLocal;
         Ladderr.dClickOpen = dClickOpen;
+        Ladderr.warnDangerousFiles = warnDangerousFiles;
+        Ladderr.dangerousExtensions = dangerousExtensions;
         if (dClickOpen) {
             addEventListener($('#torrentsTableDiv table'), 'dblclick', handleMainDClick);
         }
@@ -253,6 +267,12 @@
                     </div>
                     <div class="variable">
                         <input type="checkbox" id="ladderrSettingsMenu_dClickOpen"/><label for="ladderrSettingsMenu_dClickOpen">Open destination folder with double-click</label>
+                    </div>
+                    <div class="variable">
+                        <input type="checkbox" id="ladderrSettingsMenu_warnDangerous"/><label for="ladderrSettingsMenu_warnDangerous">Warn when opening dangerous file types</label>
+                    </div>
+                    <div class="variable">
+                        <label>· Extensions:</label><input type="text" id="ladderrSettingsMenu_dangerousExtensions" size="10" />
                     </div>
                 </div>
                 <div class="footer">
@@ -286,6 +306,12 @@
             $('#ladderrSettingsMenu').style.display = 'block';
         });
     }
+
+    function getDangerousFileExtension(filename) {
+        const extensions = Ladderr.dangerousExtensions?.split(',');
+        return extensions?.find(x => filename?.endsWith(x));
+    }
+
 
     function openUriLink(action=null) {
         if (Ladderr.basePathRemote == null || Ladderr.basePathLocal == null) {
@@ -380,6 +406,13 @@
         const remotePath = pathLocal + fileNamePath;
         const encodedRemotePath = toBase64String(remotePath)
         const uri = `${protocol}${encodedRemotePath}`;
+
+        const dangerousFileExtension = getDangerousFileExtension(fileNamePath);
+        if (Ladderr.warnDangerousFiles && dangerousFileExtension && protocol === 'ladderr-open:') {
+            if (!confirm(`Are you sure you want to open this ${dangerousFileExtension} file? This file type could potentially be harmful.`)) {
+                return;
+            }
+        }
 
         console.debug('[Ladderr] Remote path: ', remotePath);
         console.debug('[Ladderr] URI created: ', uri);
