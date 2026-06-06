@@ -377,9 +377,9 @@
             }
             fileIndex = fileRow.getAttribute('data-row-id');
             const fileName = fileRow.querySelector('span[id^="filesTablefileName"]');
-            isRowFolder = (fileRow.querySelector('.filesTableCollapseIcon') != null);
+            const rowCollapseIcon = fileRow.querySelector('.filesTableCollapseIcon');
+            isRowFolder = (rowCollapseIcon !== null) && (getComputedStyle(rowCollapseIcon).display !== 'none');
             if (isRowFolder) {
-                const rowCollapseIcon = fileRow.querySelector('.filesTableCollapseIcon');
                 let folderLevel = getComputedStyle(rowCollapseIcon).marginLeft;
                 folderLevel = parseInt(folderLevel.substring(0, folderLevel.length - 2));
                 if (folderLevel < previousLevel || previousLevel == null) {
@@ -415,9 +415,10 @@
                 pathParts.shift();
             }
         } else if (action === 'openDestination') {
-            protocol = 'ladderr-open:';
-            if (!isRowFolder) {
-                pathParts.shift();
+            if (isRowFolder) {
+                protocol = 'ladderr-open:';
+            } else {
+                protocol = 'ladderr-select:';
             }
         }
 
