@@ -309,7 +309,7 @@
 
     function getDangerousFileExtension(filename) {
         const extensions = Ladderr.dangerousExtensions?.split(',');
-        return extensions?.find(x => filename?.endsWith(x));
+        return extensions?.find(x => filename?.toLowerCase().endsWith(x.trim().toLowerCase()));
     }
 
 
