@@ -105,9 +105,6 @@
     // Single element selector shorthand
     const $ = document.querySelector.bind(document);
 
-    // Multiple elements selector shorthand
-    const $$ = document.querySelectorAll.bind(document);
-
     // Create element
     function createElement(html) {
         const template = document.createElement('template');
@@ -347,7 +344,7 @@
 
         // Get 'Save path' column index
         const torrentTable = $('#torrentsTableDiv table');
-        const torrentTableHeader = torrentTable.querySelector('thead tr');
+        const torrentTableHeader = $('#torrentsTableFixedHeaderDiv thead tr');
         const torrentTableHeaders = Array.from(torrentTableHeader.children);
 
         // Get torrent remote path
@@ -374,7 +371,7 @@
                 if (action === 'openDestination') {
                     fileRow = $('#torrentFilesTableDiv table tbody tr[data-row-id="0"]');
                 }
-                isTargetDone = (fileRow.querySelector(`td:nth-child(${fileProgressHeaderIndex + 1}) div div`).textContent !== '0.0%');
+                isTargetDone = (fileRow.querySelector(`td:nth-child(${fileProgressHeaderIndex + 1}) progress-bar`).getValue() !== 0);
             } else {
                 fileRow = fileRow.previousSibling;
             }
@@ -387,7 +384,7 @@
                 folderLevel = parseInt(folderLevel.substring(0, folderLevel.length - 2));
                 if (folderLevel < previousLevel || previousLevel == null) {
                     if (previousLevel !== null) {
-                        isTreeDone = !isTreeDone ? false : (fileRow.querySelector(`td:nth-child(${fileProgressHeaderIndex + 1}) div div`).textContent !== '0.0%');
+                        isTreeDone = isTreeDone && (fileRow.querySelector(`td:nth-child(${fileProgressHeaderIndex + 1}) progress-bar`).getValue() !== 0);
                     }
                     previousLevel = folderLevel;
                     pathParts.push(fileName.textContent);
@@ -457,7 +454,7 @@
         const panel = $('#propertiesPanel_wrapper');
         Ladderr.panelTabSelected = $('#propertiesTabs li.selected').id;
         Ladderr.panelCollapsed = panel.classList.contains('collapsed');
-        if (Ladderr.panelCollapsed || Ladderr.panelTabSelected != 'PropFilesLink') {
+        if (Ladderr.panelCollapsed || Ladderr.panelTabSelected != 'propFilesLink') {
             const filesTableObserver = new MutationObserver((mutations, observer) => {
                 if ($('#filesTablefileName0')) {
                     observer.disconnect();
@@ -468,13 +465,13 @@
                     }
                 }
             });
-            filesTableObserver.observe($('#torrentFilesTableDiv table tbody'), { childList: true });
+            filesTableObserver.observe(document.querySelector('#torrentFilesTableDiv table tbody'), { childList: true });
 
             if (!panel.classList.contains('expanded')) {
                 $('#propertiesPanel_collapseToggle').click();
             }
-            if ($('#propertiesTabs li.selected').id != 'PropFilesLink'){
-                $('#PropFilesLink').click();
+            if ($('#propertiesTabs li.selected').id != 'propFilesLink'){
+                $('#propFilesLink').click();
             }
         } else {
             openUriLink('openDestination');
@@ -509,7 +506,7 @@
         await migrateSettings();
         await loadSettings();
         createContextMenuItems();
-        addEventListener($('#torrentFilesTableDiv table'), 'dblclick', handleContentDClick);
+        addEventListener(document.querySelector('#torrentFilesTableDiv table'), 'dblclick', handleContentDClick);
     }
 
     whenPageReady(() => {
