@@ -5,13 +5,13 @@
 # ladderr
 Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 
-Current version: [v0.5.9](#Recent-changes)
+Current version: [v0.6](#Recent-changes)
 
 💥 You will need to re-install the latest [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/ladderr.reg) if you had a version prior to v0.5.4 💥
 
 ⚠️ The script is enabled on all pages by default. See [section below](#security-concerns) if you want to change this ⚠️
 
-⚠️ There's a bug in Windows that keeps explorer.exe processes open even after closing their respective window, if you never restart your machine you may be filling your RAM inadvertently. This issue seems to be fixed in the 24H2 update (see [related issue](https://github.com/Luffier/ladderr/issues/17)) ⚠️
+⚠️ There's a bug in Windows 11 that keeps explorer.exe processes open even after closing their respective window, if you never restart your machine you may be filling your RAM inadvertently. This issue was fixed in the 24H2 update (see [related issue](https://github.com/Luffier/ladderr/issues/17)) ⚠️
 
 ## How does it work?
 
@@ -102,6 +102,13 @@ Alternatively, if your extension doesn't allow this, you can do it manually:
 Unfortunately, if done manually, you'll have to redo this with each update.
 
 ## Recent changes
+
+#### Version 0.6
+- Fix for qBittorrent 5.2 Web UI changes.
+- _Technical_: Improved dangerous file extension check (fix for uppercase extensions).
+- _Technical_: Improved how settings keys are named (fix for edge cases).
+- _Technical_: Added settings migration mechanism.
+
 
 #### Version 0.5
 - Fix RCE vulnerability.

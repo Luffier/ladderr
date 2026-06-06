@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ladderr
-// @version      0.5.9
+// @version      0.6
 // @description  Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 // @author       luffier
 // @namespace    ladderr
@@ -11,6 +11,7 @@
 // @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAkFBMVEUAAAAxxP4xw/4wxP4uw/8xxP4ww/4xw/4py/8xxP4ww/4zxP4xxP8wxP4wxP4wxP4wxP4wxP4wxP4wxP4wxP4wxP8vw/8yw/8wxP4xxP4wxP4wxP8wxP4wxP4ww/4xxP4wxP4xxP8xwv8ws/8xxv8xxP8xxP8vxP4xxf4xxv4vxP4wxf4yw/8vx/8wwv4xxP/uOx+5AAAAL3RSTlMA65pkPIzXtQbJeicZxvn18d3PubCDUArl2r6ooJRuamBCHQUSwHZbWEhGNTMgFcZCVYAAAAD3SURBVDjLZZPZkoIwEACDCKtgkEM5VARl76v//+/2ZYXMpN+6qqkiyYx5MJCbmZij0Rwp0hnLxQsuCE5ecMImMxWdFxQki4zsvSBjXOQGv0ayg9tiKXyr4AuKeKaDWgU1bB0yriq4ErhaEqkgYuvqgbMKzhxc7bEqsJSRg6VVQYsim4zLBOHOoYa7CH5g7fpduVmrL6aMdxG8wVoQ8CqCBI9eBD1xKLDyXvybiyiNvnv9NsIDBu91G0cbyANBDqkRE/TyJKjEhJlPeDaSPaNjoT/FHYlYq9jfk5VYq3alKKicoAKf2Iht3rg0m2YgF78cGsXH/8H+ALCrJ8qsl2pUAAAAAElFTkSuQmCC
 // @grant        GM.getValue
 // @grant        GM.setValue
+// @grant        GM.deleteValue
 // @run-at       document-end
 // @sandbox      raw
 // @homepageURL  https://github.com/Luffier/ladderr
@@ -84,7 +85,7 @@
 
     // Helper for whenPageReady function
     const Ladderr = {
-        url: location.protocol + location.hostname + location.port,
+        url: location.origin,
         basePathLocal: null,
         basePathRemote: null,
         dClickOpen: null,
@@ -97,6 +98,9 @@
     }
 
     /* FUNCTIONS */
+
+    // Get setting storage key from setting name
+    const settingKey = (name) => `${Ladderr.url}_${name}`;
 
     // Single element selector shorthand
     const $ = document.querySelector.bind(document);
@@ -205,18 +209,18 @@
         torrentFilesMenu.append(openContainingMenuItem);
     }
 
-    // Save Ladderr settings to localStorage
+    // Save Ladderr settings to GM storage
     async function saveSettings() {
         const basePathRemote = $('#ladderrSettingsMenu_pathRemote').value;
         const basePathLocal = $('#ladderrSettingsMenu_pathLocal').value;
         const dClickOpen = $('#ladderrSettingsMenu_dClickOpen').checked;
         const warnDangerousFiles = $('#ladderrSettingsMenu_warnDangerous').checked;
         const dangerousExtensions = $('#ladderrSettingsMenu_dangerousExtensions').value;
-        await GM.setValue(Ladderr.url + 'pathRemote', basePathRemote);
-        await GM.setValue(Ladderr.url + 'pathLocal', basePathLocal);
-        await GM.setValue(Ladderr.url + 'dClickOpen', `${dClickOpen}`);
-        await GM.setValue(Ladderr.url + 'warnDangerousFiles', `${warnDangerousFiles}`);
-        await GM.setValue(Ladderr.url + 'dangerousExtensions', dangerousExtensions);
+        await GM.setValue(settingKey('pathRemote'), basePathRemote);
+        await GM.setValue(settingKey('pathLocal'), basePathLocal);
+        await GM.setValue(settingKey('dClickOpen'), `${dClickOpen}`);
+        await GM.setValue(settingKey('warnDangerousFiles'), `${warnDangerousFiles}`);
+        await GM.setValue(settingKey('dangerousExtensions'), dangerousExtensions);
         Ladderr.basePathRemote = basePathRemote;
         Ladderr.basePathLocal = basePathLocal;
         Ladderr.dClickOpen = dClickOpen;
@@ -228,13 +232,35 @@
         }
     }
 
-    // Load Ladderr settings from localStorage
+    // List of setting migrations
+    async function migrateSettings() {
+        // Migrate settings format when the prefix didn't use location.origin (v0.5.9 and earlier)
+        async function legacyOriginPrefix() {
+            const settingKeys = ['pathRemote', 'pathLocal', 'dClickOpen', 'warnDangerousFiles', 'dangerousExtensions'];
+            const legacyUrl = location.protocol + location.hostname + location.port;
+            for (const name of settingKeys) {
+                if ((await GM.getValue(settingKey(name), undefined)) !== undefined) continue;
+                const oldValue = await GM.getValue(legacyUrl + name, undefined);
+                if (oldValue === undefined) continue;
+                await GM.setValue(settingKey(name), oldValue);
+                await GM.deleteValue(legacyUrl + name);
+                console.debug(`[Ladderr] [migration:legacyOriginPrefix] moved '${name}'`);
+            }
+        }
+
+        const migrations = [legacyOriginPrefix];
+        for (const migration of migrations) {
+            await migration();
+        }
+    }
+
+    // Load Ladderr settings from GM storage
     async function loadSettings() {
-        const basePathRemote = await GM.getValue(Ladderr.url + 'pathRemote', Ladderr.basePathRemote);
-        const basePathLocal = await GM.getValue(Ladderr.url + 'pathLocal', Ladderr.basePathLocal);
-        const dClickOpen = (await GM.getValue(Ladderr.url + 'dClickOpen', Ladderr.dClickOpen)) === 'true';
-        const warnDangerousFiles = (await GM.getValue(Ladderr.url + 'warnDangerousFiles', Ladderr.warnDangerousFiles)) === 'true';
-        const dangerousExtensions = await GM.getValue(Ladderr.url + 'dangerousExtensions', Ladderr.dangerousExtensions);
+        const basePathRemote = await GM.getValue(settingKey('pathRemote'), Ladderr.basePathRemote);
+        const basePathLocal = await GM.getValue(settingKey('pathLocal'), Ladderr.basePathLocal);
+        const dClickOpen = (await GM.getValue(settingKey('dClickOpen'), Ladderr.dClickOpen)) === 'true';
+        const warnDangerousFiles = (await GM.getValue(settingKey('warnDangerousFiles'), Ladderr.warnDangerousFiles)) === 'true';
+        const dangerousExtensions = await GM.getValue(settingKey('dangerousExtensions'), Ladderr.dangerousExtensions);
         $('#ladderrSettingsMenu_pathRemote').value = basePathRemote;
         $('#ladderrSettingsMenu_pathLocal').value = basePathLocal;
         $('#ladderrSettingsMenu_dClickOpen').checked = dClickOpen;
@@ -478,9 +504,10 @@
         }
     }
 
-    function processPage() {
+    async function processPage() {
         createSettingsMenu();
-        loadSettings();
+        await migrateSettings();
+        await loadSettings();
         createContextMenuItems();
         addEventListener($('#torrentFilesTableDiv table'), 'dblclick', handleContentDClick);
     }
