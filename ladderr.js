@@ -89,7 +89,6 @@
         basePathLocal: null,
         basePathRemote: null,
         dClickOpen: null,
-        pageTimeout: true,
         pageTimer: null,
         panelCollapsed: null,
         panelTabSelected: null,
@@ -142,34 +141,47 @@
         return false;
     }
 
-    // Executes the callback after the page finishes loading
-    function whenPageReady(callback, intervalTime) {
+    // Executes the callback once the elements the script depends on are ready.
+    function whenPageReady(callback, timeout) {
+        if (!isCurrentPageValid()) {
+            console.debug('[Ladderr] Page is not a qBittorrent Web UI');
+            return;
+        }
         Ladderr.pageTimer = Date.now();
         console.debug('[Ladderr] Waiting for page to load');
-        const observerCallback = (mutations, observer) => {
-            if (Ladderr.pageTimeout) {
-                clearTimeout(Ladderr.pageTimeout);
-                Ladderr.pageTimeout = setTimeout(() => {
-                    clearTimeout(Ladderr.pageTimeout);
-                    Ladderr.pageTimeout = null;
-                    observer.disconnect();
-                    if (isCurrentPageValid()) {
-                        console.debug(`[Ladderr] Page ready in ${Date.now() - Ladderr.pageTimer}ms!`);
-                        callback();
-                    } else {
-                        console.debug(`[Ladderr] Page is not a qBittorrent Web UI`);
-                    }
-                }, intervalTime)
-            } else {
-                observer.disconnect();
-            }
+
+        const isPageReady = () => (
+            $('#desktop') &&
+            $('#preferencesLink') &&
+            $('#queueingMenuItems') &&
+            $('#torrentFilesMenu') &&
+            $('#torrentsTableDiv table') &&
+            $('#torrentFilesTableDiv table')
+        );
+
+        const executeCallback = () => {
+            observer.disconnect();
+            clearTimeout(fallbackTimer);
+            console.debug(`[Ladderr] Page ready in ${Date.now() - Ladderr.pageTimer}ms!`);
+            callback();
         };
-        const observer = new MutationObserver(observerCallback);
-        observer.observe($('body'), {
-            attributes: true,
-            childList: true,
-            subtree: true
+
+        const observer = new MutationObserver(() => {
+            if (isPageReady()) executeCallback();
         });
+        const fallbackTimer = setTimeout(() => {
+            observer.disconnect();
+            console.debug('[Ladderr] Gave up waiting for the page to become ready');
+        }, timeout);
+
+        if (isPageReady()) {
+            executeCallback();
+        } else {
+            observer.observe($('body'), {
+                childList: true,
+                subtree: true
+            });
+        }
     }
 
     // Create menu items for the different context menus
@@ -513,6 +525,6 @@
     whenPageReady(() => {
         $('head').append(createElement(style));
         processPage();
-    }, 250);
+    }, 30000);
 
 })();

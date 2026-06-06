@@ -105,6 +105,8 @@ Unfortunately, if done manually, you'll have to redo this with each update.
 
 #### Version 0.6
 - Fix for qBittorrent 5.2 Web UI changes.
+- Fix "Open destination folder" behaviour.
+- _Technical_: Improve page rediness detection (previously, the script would fail to load 10% of the time!).
 - _Technical_: Improved dangerous file extension check (fix for uppercase extensions).
 - _Technical_: Improved how settings keys are named (fix for edge cases).
 - _Technical_: Added settings migration mechanism.
