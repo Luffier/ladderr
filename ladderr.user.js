@@ -29,56 +29,81 @@
     const style = `
     <style>
         #ladderrSettingsMenu {
-            background-color: var(--color-background-popup);
-            color: var(--color-text-default);
+            --ladderr-actions-w: 84px;
             position: absolute;
             z-index: 9999;
-            top: 100px;
-            width: 500px;
-            left: 200px;
-            font-size: 12px;
-            box-shadow: black 1px 0 6px;
-            border-radius: 5px;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 520px;
+            max-width: calc(100vw - 40px);
+            color: var(--color-text-default);
+            background-color: var(--color-background-popup);
+            border: 1px solid var(--color-border-default);
+            border-radius: 3px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+        }
+        #ladderrSettingsMenu * {
+            box-sizing: border-box;
         }
         #ladderrSettingsMenu .header {
+            padding: 8px 12px;
+            font-weight: bold;
             background-color: var(--color-background-default);
             border-bottom: 1px solid var(--color-border-default);
-            border-radius: 5px 5px 0 0;
-        }
-        #ladderrSettingsMenu .header h3 {
-            padding: 5px 10px 4px 12px;
         }
         #ladderrSettingsMenu .main {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            width: 100%;
-            box-sizing: border-box;
-            padding: 10px;
+            padding: 10px 12px;
         }
-        #ladderrSettingsMenu .main .variable {
-            display: flex;
+        #ladderrSettingsMenu fieldset.settings {
+            margin: 0 0 10px;
+        }
+        #ladderrSettingsMenu fieldset.settings:last-child {
+            margin-bottom: 0;
+        }
+        #ladderrSettingsMenu .mappings-header,
+        #ladderrSettingsMenu .mapping-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) var(--ladderr-actions-w);
+            gap: 6px;
             align-items: center;
-            padding-bottom: 10px;
-            flex-grow: 1;
+            margin-bottom: 5px;
         }
-        #ladderrSettingsMenu .main .variable label:first-child {
-            width: 90px;
+        #ladderrSettingsMenu .mappings-header {
             font-weight: bold;
+            padding: 0 2px 2px;
         }
-        #ladderrSettingsMenu .main .variable input[type="text"] {
-            flex-grow: 1;
+        #ladderrSettingsMenu .mapping-row input[type="text"],
+        #ladderrSettingsMenu .field input[type="text"] {
+            width: 100%;
         }
-        #ladderrSettingsMenu .main .variable input[type="checkbox"] {
-            margin-right: 1em;
+        #ladderrSettingsMenu .mapping-actions {
+            display: flex;
+            gap: 3px;
+        }
+        #ladderrSettingsMenu .mapping-actions button {
+            padding: 2px 6px;
+        }
+        #ladderrSettingsMenu_addMapping {
+            margin-top: 2px;
+        }
+        #ladderrSettingsMenu .option {
+            padding: 2px 0;
+        }
+        #ladderrSettingsMenu .field {
+            margin-top: 8px;
+        }
+        #ladderrSettingsMenu .field label {
+            display: block;
+            margin-bottom: 3px;
         }
         #ladderrSettingsMenu .footer {
-            display: flex;
-            justify-content: center;
-            padding-bottom: 10px;
+            padding: 8px 12px;
+            text-align: right;
+            border-top: 1px solid var(--color-border-default);
         }
         #ladderrSettingsMenu .footer button {
-            margin: 0px 10px;
+            margin-left: 8px;
         }
     </style>
     `;
@@ -86,8 +111,7 @@
     // Helper for whenPageReady function
     const Ladderr = {
         url: location.origin,
-        basePathLocal: null,
-        basePathRemote: null,
+        pathMappings: [],
         dClickOpen: null,
         pageTimer: null,
         panelCollapsed: null,
@@ -220,18 +244,15 @@
 
     // Save Ladderr settings to GM storage
     async function saveSettings() {
-        const basePathRemote = $('#ladderrSettingsMenu_pathRemote').value;
-        const basePathLocal = $('#ladderrSettingsMenu_pathLocal').value;
+        const pathMappings = getPathMappings();
         const dClickOpen = $('#ladderrSettingsMenu_dClickOpen').checked;
         const warnDangerousFiles = $('#ladderrSettingsMenu_warnDangerous').checked;
         const dangerousExtensions = $('#ladderrSettingsMenu_dangerousExtensions').value;
-        await GM.setValue(settingKey('pathRemote'), basePathRemote);
-        await GM.setValue(settingKey('pathLocal'), basePathLocal);
+        await GM.setValue(settingKey('pathMappings'), JSON.stringify(pathMappings));
         await GM.setValue(settingKey('dClickOpen'), `${dClickOpen}`);
         await GM.setValue(settingKey('warnDangerousFiles'), `${warnDangerousFiles}`);
         await GM.setValue(settingKey('dangerousExtensions'), dangerousExtensions);
-        Ladderr.basePathRemote = basePathRemote;
-        Ladderr.basePathLocal = basePathLocal;
+        Ladderr.pathMappings = pathMappings;
         Ladderr.dClickOpen = dClickOpen;
         Ladderr.warnDangerousFiles = warnDangerousFiles;
         Ladderr.dangerousExtensions = dangerousExtensions;
@@ -257,7 +278,20 @@
             }
         }
 
-        const migrations = [legacyOriginPrefix];
+        // Migrate the single remote/local path pair to the path mappings list (v0.5.9 and earlier)
+        async function singleToMultiMapping() {
+            if ((await GM.getValue(settingKey('pathMappings'), undefined)) !== undefined) return;
+            const remote = await GM.getValue(settingKey('pathRemote'), undefined);
+            const local = await GM.getValue(settingKey('pathLocal'), undefined);
+            if ((remote === undefined) && (local === undefined)) return;
+            const mappings = [{ remote: remote || '', local: local || '' }];
+            await GM.setValue(settingKey('pathMappings'), JSON.stringify(mappings));
+            await GM.deleteValue(settingKey('pathRemote'));
+            await GM.deleteValue(settingKey('pathLocal'));
+            console.debug('[Ladderr] [migration:singleToMultiMapping] converted single mapping to list');
+        }
+
+        const migrations = [legacyOriginPrefix, singleToMultiMapping];
         for (const migration of migrations) {
             await migration();
         }
@@ -265,18 +299,21 @@
 
     // Load Ladderr settings from GM storage
     async function loadSettings() {
-        const basePathRemote = await GM.getValue(settingKey('pathRemote'), Ladderr.basePathRemote);
-        const basePathLocal = await GM.getValue(settingKey('pathLocal'), Ladderr.basePathLocal);
+        let pathMappings = [];
+        try {
+            pathMappings = JSON.parse(await GM.getValue(settingKey('pathMappings'), '[]'));
+        } catch (e) {
+            console.warn('[Ladderr] Could not parse stored path mappings', e);
+        }
+        if (!Array.isArray(pathMappings)) pathMappings = [];
         const dClickOpen = (await GM.getValue(settingKey('dClickOpen'), Ladderr.dClickOpen)) === 'true';
         const warnDangerousFiles = (await GM.getValue(settingKey('warnDangerousFiles'), Ladderr.warnDangerousFiles)) === 'true';
         const dangerousExtensions = await GM.getValue(settingKey('dangerousExtensions'), Ladderr.dangerousExtensions);
-        $('#ladderrSettingsMenu_pathRemote').value = basePathRemote;
-        $('#ladderrSettingsMenu_pathLocal').value = basePathLocal;
+        loadPathMappings(pathMappings);
         $('#ladderrSettingsMenu_dClickOpen').checked = dClickOpen;
         $('#ladderrSettingsMenu_warnDangerous').checked = warnDangerousFiles;
         $('#ladderrSettingsMenu_dangerousExtensions').value = dangerousExtensions;
-        Ladderr.basePathRemote = basePathRemote;
-        Ladderr.basePathLocal = basePathLocal;
+        Ladderr.pathMappings = pathMappings;
         Ladderr.dClickOpen = dClickOpen;
         Ladderr.warnDangerousFiles = warnDangerousFiles;
         Ladderr.dangerousExtensions = dangerousExtensions;
@@ -290,29 +327,37 @@
         // Settings menu
         const ladderrSettingsMenu = createElement(`
             <div id="ladderrSettingsMenu">
-                <div class="header">
-                    <h3>Ladderr Settings Menu</h3>
-                </div>
+                <div class="header">Ladderr Options</div>
                 <div class="main">
-                    <div class="variable">
-                        <label>· Remote path:</label><input type="text" id="ladderrSettingsMenu_pathRemote" size="10" />
-                    </div>
-                    <div class="variable">
-                        <label>· Local path:</label><input type="text" id="ladderrSettingsMenu_pathLocal" size="10" />
-                    </div>
-                    <div class="variable">
-                        <input type="checkbox" id="ladderrSettingsMenu_dClickOpen"/><label for="ladderrSettingsMenu_dClickOpen">Open destination folder with double-click</label>
-                    </div>
-                    <div class="variable">
-                        <input type="checkbox" id="ladderrSettingsMenu_warnDangerous"/><label for="ladderrSettingsMenu_warnDangerous">Warn when opening dangerous file types</label>
-                    </div>
-                    <div class="variable">
-                        <label>· Extensions:</label><input type="text" id="ladderrSettingsMenu_dangerousExtensions" size="10" />
-                    </div>
+                    <fieldset class="settings">
+                        <legend>Path mappings</legend>
+                        <div class="mappings-header">
+                            <span>Remote path</span>
+                            <span>Local path</span>
+                            <span></span>
+                        </div>
+                        <div id="ladderrSettingsMenu_mappings"></div>
+                        <button type="button" id="ladderrSettingsMenu_addMapping">+ Add mapping</button>
+                    </fieldset>
+                    <fieldset class="settings">
+                        <legend>Options</legend>
+                        <div class="option">
+                            <input type="checkbox" id="ladderrSettingsMenu_dClickOpen"/>
+                            <label for="ladderrSettingsMenu_dClickOpen">Open destination folder with double-click</label>
+                        </div>
+                        <div class="option">
+                            <input type="checkbox" id="ladderrSettingsMenu_warnDangerous"/>
+                            <label for="ladderrSettingsMenu_warnDangerous">Warn when opening dangerous file types</label>
+                        </div>
+                        <div class="field">
+                            <label for="ladderrSettingsMenu_dangerousExtensions">Dangerous file extensions:</label>
+                            <input type="text" id="ladderrSettingsMenu_dangerousExtensions" />
+                        </div>
+                    </fieldset>
                 </div>
                 <div class="footer">
-                    <button id="ladderrSettingsMenu_saveBtn" title="Save settings" class="saveclose_buttons">Save</button>
-                    <button id="ladderrSettingsMenu_closeBtn" title="Close window" class="saveclose_buttons">Close</button>
+                    <button type="button" id="ladderrSettingsMenu_saveBtn" title="Save settings">Save</button>
+                    <button type="button" id="ladderrSettingsMenu_closeBtn" title="Close window">Close</button>
                 </div>
             </div>
         `);
@@ -325,6 +370,31 @@
         });
         addEventListener($('#ladderrSettingsMenu_closeBtn'), 'click', () => {
             $('#ladderrSettingsMenu').style.display = 'none';
+        });
+
+        // Add a new mapping row at the bottom
+        addEventListener($('#ladderrSettingsMenu_addMapping'), 'click', () => {
+            $('#ladderrSettingsMenu_mappings').append(createMappingRow());
+        });
+
+        // Remove and reorder mapping rows.
+        addEventListener($('#ladderrSettingsMenu_mappings'), 'click', (e) => {
+            const row = e.target.closest('.mapping-row');
+            if (!row) return;
+            if (e.target.classList.contains('mapping-remove')) {
+                if (row.parentNode.querySelectorAll('.mapping-row').length > 1) {
+                    row.remove();
+                } else {
+                    row.querySelector('.mapping-remote').value = '';
+                    row.querySelector('.mapping-local').value = '';
+                }
+            } else if (e.target.classList.contains('mapping-up')) {
+                const prev = row.previousElementSibling;
+                if (prev) row.parentNode.insertBefore(row, prev);
+            } else if (e.target.classList.contains('mapping-down')) {
+                const next = row.nextElementSibling;
+                if (next) row.parentNode.insertBefore(next, row);
+            }
         });
 
         // Open settings context menu item
@@ -342,6 +412,56 @@
         });
     }
 
+    // Create a single mapping row
+    function createMappingRow(remote = '', local = '') {
+        const row = createElement(`
+            <div class="mapping-row">
+                <input type="text" class="mapping-remote" placeholder="/distros/" />
+                <input type="text" class="mapping-local" placeholder="D:\\" />
+                <div class="mapping-actions">
+                    <button type="button" class="mapping-up" title="Move up (higher priority)">↑</button>
+                    <button type="button" class="mapping-down" title="Move down">↓</button>
+                    <button type="button" class="mapping-remove" title="Remove mapping">✕</button>
+                </div>
+            </div>
+        `);
+        row.querySelector('.mapping-remote').value = remote;
+        row.querySelector('.mapping-local').value = local;
+        return row;
+    }
+
+    function loadPathMappings(mappings) {
+        const container = $('#ladderrSettingsMenu_mappings');
+        container.innerHTML = '';
+        const rows = (Array.isArray(mappings) && mappings.length > 0) ? mappings : [{ remote: '', local: '' }];
+        for (const mapping of rows) {
+            container.append(createMappingRow(mapping.remote || '', mapping.local || ''));
+        }
+    }
+
+    function getPathMappings() {
+        const container = $('#ladderrSettingsMenu_mappings');
+        return Array.from(container.querySelectorAll('.mapping-row'))
+            .map((row) => ({
+                remote: row.querySelector('.mapping-remote').value.trim(),
+                local: row.querySelector('.mapping-local').value.trim()
+            }))
+            .filter((mapping) => mapping.remote || mapping.local);
+    }
+
+    function resolveLocalPath(remotePath) {
+        for (const mapping of Ladderr.pathMappings) {
+            if (!mapping.remote || !mapping.local) continue;
+            const remote = mapping.remote.replace(/[\/\\]+$/, '');
+            if ((remotePath === remote) || remotePath.startsWith(`${remote}/`)) {
+                const local = mapping.local.replace(/[\/\\]+$/, '');
+                const remainder = remotePath.slice(remote.length);
+                return (local + remainder).replaceAll('/', '\\');
+            }
+        }
+        return null;
+    }
+
     function getDangerousFileExtension(filename) {
         const extensions = Ladderr.dangerousExtensions?.split(',');
         return extensions?.find(x => filename?.toLowerCase().endsWith(x.trim().toLowerCase()));
@@ -349,8 +469,8 @@
 
 
     function openUriLink(action=null) {
-        if (Ladderr.basePathRemote == null || Ladderr.basePathLocal == null) {
-            console.log('[Ladderr] Please configure your local and remote paths');
+        if (Ladderr.pathMappings.length === 0) {
+            console.log('[Ladderr] Please configure at least one path mapping');
             return;
         }
 
@@ -434,7 +554,11 @@
             }
         }
 
-        const pathLocal = pathRemote.replace(Ladderr.basePathRemote, Ladderr.basePathLocal).replaceAll('/', '\\');
+        const pathLocal = resolveLocalPath(pathRemote);
+        if (pathLocal === null) {
+            console.log(`[Ladderr] No path mapping matches "${pathRemote}"`);
+            return;
+        }
         let fileNamePath = pathParts.reverse().join('\\');
         if (fileNamePath.length > 0) {
             fileNamePath = `\\${fileNamePath}`;

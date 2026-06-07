@@ -36,35 +36,41 @@ To learn more about protocol handlers, you can read [MS-URI-Handlers](https://gi
 ## How to use
 
 - Install the custom protocol handlers by double-clicking [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/ladderr.reg) (can be easily removed with [`uninstall-ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/uninstall-ladderr.reg)).
-- Install the userscript from [greasyfork](https://greasyfork.org/scripts/479135-ladderr), [openuserjs](https://openuserjs.org/scripts/luffier/Ladderr) or directly from the [repo](https://github.com/Luffier/ladderr).
+- Install the userscript from [greasyfork](https://greasyfork.org/scripts/479135-ladderr), [openuserjs](https://openuserjs.org/scripts/luffier/Ladderr) or directly from the [repo](https://github.com/Luffier/ladderr/blob/master/ladderr.user.js).
 - Configure the root path mapping in the settings menu (see section below).
 
 ### Path mapping
 
-We need to map your qBittorrent remote root path to your local network root path. 
+We need to map your qBittorrent remote paths to your local paths.
 This can be done by going to the `Tools` navbar menu and clicking `Ladderr Options`.
 
 <p align="center">
   <img src="https://i.imgur.com/5mCUqHI.png" width="500px" style="border: 1px solid black">
 </p>
 
-The remote path should be the root folder that you configured 
-in `Default Save Path` (`Options\Downloads\Saving Management`) and your local root
-path the equivalent in your local machine.
+Each mapping pairs a **remote path** (a root folder you configured under
+`Default Save Path` in `Options\Downloads\Saving Management`) with its **local path**
+equivalent on your machine. When opening a file or folder, Ladderr translates the
+torrent's save path using the **first mapping whose remote path matches** — so order
+matters: put more specific paths above broader ones. Use `+ Add mapping` to add rows
+and the `↑`/`↓` buttons to set their priority. If no mapping matches, nothing is opened.
 
 <p align="center">
-  <img src="https://i.imgur.com/e6pFYIU.png" width="500px" style="border: 1px solid black">
+  <img src="https://i.imgur.com/8j3lf3g.png" width="500px" style="border: 1px solid black">
 </p>
 
-For example, if you have a network location:
-- *Default Save Path*: `/data/downloads`
-- **Remote root server path**: `/data/`
-- **Local root path**: `D:\`
+A single mapping is enough if all your downloads live under one root:
+- *Default Save Path*: `/data/distros`
+- **Remote path**: `/distros/`
+- **Local path**: `D:\`
 
-And if you have an NFS\SMB\Samba server:
-- *Default Save Path*: `/downloads`
-- **Remote root server path**: `/downloads`
-- **Local root path**: `\\server_name_or_ip\very\long\path\downloads`
+Add more mappings when your downloads are spread across multiple locations:
+- `/data/downloads/distros` → `Z:\media\distros`
+- `/data/downloads/centos` → `Y:\archive\centos`
+
+Local paths can also point at an NFS\SMB\Samba server, e.g.:
+- **Remote path**: `/downloads`
+- **Local path**: `\\server_name_or_ip\very\long\path\downloads`
 
 ## What's next
 - Linux support (any help would be appreciated).
@@ -104,12 +110,13 @@ Unfortunately, if done manually, you'll have to redo this with each update.
 ## Recent changes
 
 #### Version 0.6
+- Added support for multiple path mappings.
 - Fix for qBittorrent 5.2 Web UI changes.
 - Fix "Open destination folder" behaviour.
 - _Technical_: Improve page rediness detection (previously, the script would fail to load 10% of the time!).
 - _Technical_: Improved dangerous file extension check (fix for uppercase extensions).
 - _Technical_: Improved how settings keys are named (fix for edge cases).
-- _Technical_: Added settings migration mechanism.
+- _Technical_: Added automatic settings migration.
 
 
 #### Version 0.5
