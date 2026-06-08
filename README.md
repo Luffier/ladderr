@@ -7,7 +7,7 @@ Access your remote files directly from qBittorrent Web UI, just like in the desk
 
 Current version: [v0.6](#Recent-changes)
 
-💥 You will need to re-install the latest [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/ladderr.reg) if you had a version prior to v0.5.4 💥
+💥 You will need to re-install the latest [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/windows/ladderr.reg) if you had a version prior to v0.5.4 💥
 
 ⚠️ The script is enabled on all pages by default. See [section below](#security-concerns) if you want to change this ⚠️
 
@@ -26,16 +26,21 @@ in the `Content` tab), the protocol is invoked and an inline Powershell script i
 to parse and open the target path.
 
 The files in this repo:
-- ladderr.js: the userscript itself
-- ladderr.reg: the custom protocol handlers `ladderr-open:` and `ladderr-select:`
+- ladderr.user.js: the userscript itself
+- ladderr.reg: the custom protocol handlers `ladderr-open:` and `ladderr-select:` for Windows
+- linux/ladderr-handler.sh: Linux custom protocol handler script
+- linux/install.sh: installs the protocol script and desktop entry
+- linux/uninstall.sh: reverts the install script changes
 - uninstall-ladderr.reg: removes the protocol handlers from the registry
 - urlparser.ps1: Powershell script describing the one-line code that is executed when the protocols are invoked
 
 To learn more about protocol handlers, you can read [MS-URI-Handlers](https://github.com/amartinsec/MS-URI-Handlers).
 
-## How to use
+## How to install
 
-- Install the custom protocol handlers by double-clicking [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/ladderr.reg) (can be easily removed with [`uninstall-ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/uninstall-ladderr.reg)).
+- Install the custom protocol handlers:
+  - For Windows: download and double-click [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/windows/ladderr.reg) (can be easily removed with [`uninstall-ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/windows/uninstall-ladderr.reg)).
+  - For Linux: download the `ladderr-handler.sh` and `install.sh` ([linux dir](https://github.com/Luffier/ladderr/blob/master/linux/)) and execute the installer (can be easily removed with `uninstall.sh`).
 - Install the userscript from [greasyfork](https://greasyfork.org/scripts/479135-ladderr), [openuserjs](https://openuserjs.org/scripts/luffier/Ladderr) or directly from the [repo](https://github.com/Luffier/ladderr/blob/master/ladderr.user.js).
 - Configure the root path mapping in the settings menu (see section below).
 
@@ -72,12 +77,24 @@ Local paths can also point at an NFS\SMB\Samba server, e.g.:
 - **Remote path**: `/downloads`
 - **Local path**: `\\server_name_or_ip\very\long\path\downloads`
 
-## What's next
-- Linux support (any help would be appreciated).
+### Support in Linux
+
+For the script to work, you'll need `xdg-utils` and `desktop-file-utils`,
+which should be already installed with most popular DE.
+
+The installer script copies the handler (`ladder-handler.sh`) and creates a
+`.desktop` entry that registers the `ladderr-open:` and `ladderr-select:` schemes.
+These files go to their respective dirs in the XDG data home folder (under
+`~/.local/share`). You can remove them and revert the process with `./uninstall.sh`.
+
+The handler uses `xdg-open` to open files/folders and the freedesktop
+`org.freedesktop.FileManager1` D-Bus interface to open a folder with the file
+preselected (if it's unavailable, it simply opens the containing folder).
 
 ## Limitations
-- Only works in Windows.
-- In Chromium-based browsers, and when using HTTP, it will ask for permission when opening a new file/folder. For a more seamless experience, use HTTPS. If your server is local, look up self-signed certs with mkcert, or use this [solution](https://www.youtube.com/watch?v=qlcVx-k-02E).
+- In Chromium-based browsers, and when using HTTP, it will ask for permission when opening a new file/folder.
+For a more seamless experience, use HTTPS. If your server is local, look up self-signed certs with mkcert,
+or use this [solution](https://www.youtube.com/watch?v=qlcVx-k-02E).
 
 ## Security concerns
 
@@ -110,6 +127,7 @@ Unfortunately, if done manually, you'll have to redo this with each update.
 ## Recent changes
 
 #### Version 0.6
+- Linux support.
 - Added support for multiple path mappings.
 - Fix for qBittorrent 5.2 Web UI changes.
 - Fix "Open destination folder" behaviour.

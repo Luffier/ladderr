@@ -111,6 +111,8 @@
     // Helper for whenPageReady function
     const Ladderr = {
         url: location.origin,
+        // Path separator for the OS the browser (and thus the protocol handler) runs on.
+        sep: /win/i.test(navigator.userAgentData?.platform || navigator.platform || '') ? '\\' : '/',
         pathMappings: [],
         dClickOpen: null,
         pageTimer: null,
@@ -417,7 +419,7 @@
         const row = createElement(`
             <div class="mapping-row">
                 <input type="text" class="mapping-remote" placeholder="/distros/" />
-                <input type="text" class="mapping-local" placeholder="D:\\" />
+                <input type="text" class="mapping-local" placeholder="${Ladderr.sep === '\\' ? 'D:\\' : '/mnt/storage'}" />
                 <div class="mapping-actions">
                     <button type="button" class="mapping-up" title="Move up (higher priority)">↑</button>
                     <button type="button" class="mapping-down" title="Move down">↓</button>
@@ -456,7 +458,7 @@
             if ((remotePath === remote) || remotePath.startsWith(`${remote}/`)) {
                 const local = mapping.local.replace(/[\/\\]+$/, '');
                 const remainder = remotePath.slice(remote.length);
-                return (local + remainder).replaceAll('/', '\\');
+                return (local + remainder).replaceAll('/', Ladderr.sep);
             }
         }
         return null;
@@ -559,9 +561,9 @@
             console.log(`[Ladderr] No path mapping matches "${pathRemote}"`);
             return;
         }
-        let fileNamePath = pathParts.reverse().join('\\');
+        let fileNamePath = pathParts.reverse().join(Ladderr.sep);
         if (fileNamePath.length > 0) {
-            fileNamePath = `\\${fileNamePath}`;
+            fileNamePath = `${Ladderr.sep}${fileNamePath}`;
         }
         const remotePath = pathLocal + fileNamePath;
         const encodedRemotePath = toBase64String(remotePath)
