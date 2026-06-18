@@ -7,8 +7,6 @@ Access your remote files directly from qBittorrent Web UI, just like in the desk
 
 Current version: [v0.6](#Recent-changes)
 
-💥 You will need to re-install the latest [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/windows/ladderr.reg) if you had a version prior to v0.5.4 💥
-
 ⚠️ The script is enabled on all pages by default. See [section below](#security-concerns) if you want to change this ⚠️
 
 ⚠️ There's a bug in Windows 11 that keeps explorer.exe processes open even after closing their respective window, if you never restart your machine you may be filling your RAM inadvertently. This issue was fixed in the 24H2 update (see [related issue](https://github.com/Luffier/ladderr/issues/17)) ⚠️
@@ -124,6 +122,12 @@ Alternatively, if your extension doesn't allow this, you can do it manually:
 
 Unfortunately, if done manually, you'll have to redo this with each update.
 
+## Troubleshooting
+
+- Make sure you've followed the instructions, reinstall the protocols and check your folder mapping. If nothing happens still, maybe your qBittorrent is out of date or a recent update has broken the script. In that case, open a [new issue](https://github.com/Luffier/ladderr/issues/new).
+- Version 0.6 works with qBittorrent 5.2, for 5.0 the last compatible version was [v0.5.9](https://github.com/Luffier/ladderr/blob/v0.5.9/ladderr.js).
+- You will need to re-install the latest [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/windows/ladderr.reg) if you had a version prior to v0.5.4
+  
 ## Recent changes
 
 #### Version 0.6
