@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ladderr
-// @version      0.6
+// @version      0.6.1
 // @description  Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 // @author       luffier
 // @namespace    ladderr
@@ -121,6 +121,46 @@
         warnDangerousFiles: true,
         dangerousExtensions: '.exe,.com,.cmd,.bat,.pif,.scr,.vbs,.js,.wsf,.wsh,.hta,.cpl,.dll,.msi,.msp,.cab,.ps1,.py,.reg,.inf,.url,.vbe,.jse,.lnk,.scf,.application,.gadget,.appref-ms,.shb,.shs'
     }
+
+    // UI hooks for cross-version compatibility.
+    const UI = (() => {
+        const hooks = {
+            // "Files" tab in the properties panel.
+            filesTab: [
+                () => $('#propFilesLink'), // 5.1: id was renamed from PropFilesLink to propFilesLink
+                () => $('#PropFilesLink'), // 5.0
+            ],
+            // File/folder download progress cell
+            progress: [
+                (cell) => { // 5.2: <progress-bar> element
+                    const bar = cell?.querySelector('progress-bar');
+                    return (bar && typeof bar.getValue === 'function') ? (Number(bar.getValue()) || 0) : undefined;
+                },
+                (cell) => { // 5.0: plain text like "0.0%"
+                    const value = parseFloat((cell?.textContent || '').replace(',', '.'));
+                    return Number.isNaN(value) ? undefined : value;
+                },
+            ],
+        };
+
+        // Walk a hook's hooks in order; first real value wins, else null.
+        const resolve = (hook_name, ...args) => {
+            for (const hook of hooks[hook_name]) {
+                const result = hook(...args);
+                if (result !== undefined && result !== null) return result;
+            }
+            return null;
+        };
+
+        return {
+            getProgressValue: (cell) => resolve('progress', cell) ?? 0,
+            getFilesTab: () => resolve('filesTab'),
+            getFilesTabId() {
+                const tab = this.getFilesTab();
+                return tab ? tab.id : null;
+            }
+        };
+    })();
 
     /* FUNCTIONS */
 
@@ -505,7 +545,8 @@
                 if (action === 'openDestination') {
                     fileRow = $('#torrentFilesTableDiv table tbody tr[data-row-id="0"]');
                 }
-                isTargetDone = (fileRow.querySelector(`td:nth-child(${fileProgressHeaderIndex + 1}) progress-bar`).getValue() !== 0);
+                const targetCell = fileRow.querySelector(`td:nth-child(${fileProgressHeaderIndex + 1})`);
+                isTargetDone = UI.getProgressValue(targetCell) > 0;
             } else {
                 fileRow = fileRow.previousSibling;
             }
@@ -518,7 +559,8 @@
                 folderLevel = parseInt(folderLevel.substring(0, folderLevel.length - 2));
                 if (folderLevel < previousLevel || previousLevel == null) {
                     if (previousLevel !== null) {
-                        isTreeDone = isTreeDone && (fileRow.querySelector(`td:nth-child(${fileProgressHeaderIndex + 1}) progress-bar`).getValue() !== 0);
+                        const progressCell = fileRow.querySelector(`td:nth-child(${fileProgressHeaderIndex + 1})`);
+                        isTreeDone = isTreeDone && UI.getProgressValue(progressCell) > 0;
                     }
                     previousLevel = folderLevel;
                     pathParts.push(fileName.textContent);
@@ -593,7 +635,7 @@
         const panel = $('#propertiesPanel_wrapper');
         Ladderr.panelTabSelected = $('#propertiesTabs li.selected').id;
         Ladderr.panelCollapsed = panel.classList.contains('collapsed');
-        if (Ladderr.panelCollapsed || Ladderr.panelTabSelected != 'propFilesLink') {
+        if (Ladderr.panelCollapsed || Ladderr.panelTabSelected != UI.getFilesTabId()) {
             const filesTableObserver = new MutationObserver((mutations, observer) => {
                 if ($('#filesTablefileName0')) {
                     observer.disconnect();
@@ -609,8 +651,8 @@
             if (!panel.classList.contains('expanded')) {
                 $('#propertiesPanel_collapseToggle').click();
             }
-            if ($('#propertiesTabs li.selected').id != 'propFilesLink'){
-                $('#propFilesLink').click();
+            if ($('#propertiesTabs li.selected').id != UI.getFilesTabId()){
+                UI.getFilesTab().click();
             }
         } else {
             openUriLink('openDestination');

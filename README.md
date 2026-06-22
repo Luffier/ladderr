@@ -5,7 +5,7 @@
 # ladderr
 Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 
-Current version: [v0.6](#Recent-changes)
+Current version: [v0.6.1](#Recent-changes)
 
 ⚠️ The script is enabled on all pages by default. See [section below](#security-concerns) if you want to change this ⚠️
 
@@ -124,8 +124,7 @@ Unfortunately, if done manually, you'll have to redo this with each update.
 
 ## Troubleshooting
 
-- Make sure you've followed the instructions, reinstall the protocols and check your folder mapping. If nothing happens still, maybe your qBittorrent is out of date or a recent update has broken the script. In that case, open a [new issue](https://github.com/Luffier/ladderr/issues/new).
-- Version 0.6 works with qBittorrent 5.2, for 5.0 the last compatible version was [v0.5.9](https://github.com/Luffier/ladderr/blob/v0.5.9/ladderr.js).
+- Make sure you've followed the instructions, reinstall the protocols and check your folder mapping. If nothing happens still, maybe a recent update has broken the script. In that case, open a [new issue](https://github.com/Luffier/ladderr/issues/new).
 - You will need to re-install the latest [`ladderr.reg`](https://github.com/Luffier/ladderr/blob/master/windows/ladderr.reg) if you had a version prior to v0.5.4
   
 ## Recent changes
@@ -139,20 +138,21 @@ Unfortunately, if done manually, you'll have to redo this with each update.
 - _Technical_: Improved dangerous file extension check (fix for uppercase extensions).
 - _Technical_: Improved how settings keys are named (fix for edge cases).
 - _Technical_: Added automatic settings migration.
+- v0.6.1: Add cross-compatibility version (full qBittorrent v5.x support).
 
 
 #### Version 0.5
 - Fix RCE vulnerability.
 - Add unicode support and fix issue with whitespaces.
-- 0.5.1: Fix for paths with depth (relative to the base path).
-- 0.5.2: Fix for paths containing commas.
-- 0.5.3: Fix for certain unicode characters.
-- 0.5.4: Fix for paths longer than 259 characters.
-- 0.5.5: Fix for Chromium browsers when opening a file/folder for the first time.
-- 0.5.6: Fix for qBittorrent 5.0 Web UI changes.
-- 0.5.7: Added ability to open parent folders of uninitialized files and folders.
-- 0.5.8: Added ability to open files and folders directly from the torrent list by double-clicking (see the settings menu).
-- 0.5.9: Added confirmation prompt for opening potentially harmful files. File extensions are configurable. 
+- v0.5.1: Fix for paths with depth (relative to the base path).
+- v0.5.2: Fix for paths containing commas.
+- v0.5.3: Fix for certain unicode characters.
+- v0.5.4: Fix for paths longer than 259 characters.
+- v0.5.5: Fix for Chromium browsers when opening a file/folder for the first time.
+- v0.5.6: Fix for qBittorrent 5.0 Web UI changes.
+- v0.5.7: Added ability to open parent folders of uninitialized files and folders.
+- v0.5.8: Added ability to open files and folders directly from the torrent list by double-clicking (see the settings menu).
+- v0.5.9: Added confirmation prompt for opening potentially harmful files. File extensions are configurable. 
 
 #### Version 0.4
 - Powershell popup window no longer appears.
