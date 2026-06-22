@@ -138,7 +138,7 @@ Unfortunately, if done manually, you'll have to redo this with each update.
 - _Technical_: Improved dangerous file extension check (fix for uppercase extensions).
 - _Technical_: Improved how settings keys are named (fix for edge cases).
 - _Technical_: Added automatic settings migration.
-- v0.6.1: Add cross-compatibility version (full qBittorrent v5.x support).
+- v0.6.1: Add cross-version compatibility (full qBittorrent v5.x support).
 
 
 #### Version 0.5
