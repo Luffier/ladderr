@@ -25,12 +25,12 @@ to parse and open the target path.
 
 The files in this repo:
 - ladderr.user.js: the userscript itself
-- ladderr.reg: the custom protocol handlers `ladderr-open:` and `ladderr-select:` for Windows
+- windows/ladderr.reg: the custom protocol handlers `ladderr-open:` and `ladderr-select:` for Windows
+- windows/uninstall-ladderr.reg: removes the protocol handlers from the registry
+- windows/urlparser.ps1: Powershell script describing the one-line code that is executed when the protocols are invoked
 - linux/ladderr-handler.sh: Linux custom protocol handler script
 - linux/install.sh: installs the protocol script and desktop entry
 - linux/uninstall.sh: reverts the install script changes
-- uninstall-ladderr.reg: removes the protocol handlers from the registry
-- urlparser.ps1: Powershell script describing the one-line code that is executed when the protocols are invoked
 
 To learn more about protocol handlers, you can read [MS-URI-Handlers](https://github.com/amartinsec/MS-URI-Handlers).
 
