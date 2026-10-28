@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Ladderr
-// @version      0.6.1
+// @version      0.6.2
 // @description  Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 // @author       luffier
 // @namespace    ladderr
@@ -221,8 +221,8 @@
             $('#preferencesLink') &&
             $('#queueingMenuItems') &&
             $('#torrentFilesMenu') &&
-            $('#torrentsTableDiv table') &&
-            $('#torrentFilesTableDiv table')
+            $('#torrentsTableDiv > table') &&
+            $('#torrentFilesTableDiv > table')
         );
 
         const executeCallback = () => {
@@ -298,9 +298,9 @@
         Ladderr.dClickOpen = dClickOpen;
         Ladderr.warnDangerousFiles = warnDangerousFiles;
         Ladderr.dangerousExtensions = dangerousExtensions;
-        $('#torrentsTableDiv table').removeEventListener('dblclick', handleMainDClick, true);
+        $('#torrentsTableDiv > table').removeEventListener('dblclick', handleMainDClick, true);
         if (dClickOpen) {
-            addEventListener($('#torrentsTableDiv table'), 'dblclick', handleMainDClick);
+            addEventListener($('#torrentsTableDiv > table'), 'dblclick', handleMainDClick);
         }
     }
 
@@ -360,7 +360,7 @@
         Ladderr.warnDangerousFiles = warnDangerousFiles;
         Ladderr.dangerousExtensions = dangerousExtensions;
         if (dClickOpen) {
-            addEventListener($('#torrentsTableDiv table'), 'dblclick', handleMainDClick);
+            addEventListener($('#torrentsTableDiv > table'), 'dblclick', handleMainDClick);
         }
     }
 
@@ -517,7 +517,7 @@
         }
 
         // Get 'Save path' column index
-        const torrentTable = $('#torrentsTableDiv table');
+        const torrentTable = $('#torrentsTableDiv > table');
         const torrentTableHeader = $('#torrentsTableFixedHeaderDiv thead tr');
         const torrentTableHeaders = Array.from(torrentTableHeader.children);
 
@@ -687,7 +687,7 @@
         await migrateSettings();
         await loadSettings();
         createContextMenuItems();
-        addEventListener(document.querySelector('#torrentFilesTableDiv table'), 'dblclick', handleContentDClick);
+        addEventListener(document.querySelector('#torrentFilesTableDiv > table'), 'dblclick', handleContentDClick);
     }
 
     whenPageReady(() => {

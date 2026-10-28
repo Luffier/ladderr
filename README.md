@@ -5,7 +5,7 @@
 # ladderr
 Access your remote files directly from qBittorrent Web UI, just like in the desktop app.
 
-Current version: [v0.6.1](#Recent-changes)
+Current version: [v0.6.2](#Recent-changes)
 
 ⚠️ The script is enabled on all pages by default. See [section below](#security-concerns) if you want to change this ⚠️
 
@@ -139,6 +139,7 @@ Unfortunately, if done manually, you'll have to redo this with each update.
 - _Technical_: Improved how settings keys are named (fix for edge cases).
 - _Technical_: Added automatic settings migration.
 - v0.6.1: Add cross-version compatibility (full qBittorrent v5.x support).
+- v0.6.2: Fix for qBittorrent 5.3 Web UI changes.
 
 
 #### Version 0.5
